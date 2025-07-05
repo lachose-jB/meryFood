@@ -112,7 +112,8 @@ const getCategoryClass = (category: string) => {
     repas: 'px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800',
     ingredient: 'px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-orange-100 text-orange-800',
     farine: 'px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800',
-    boisson: 'px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-cyan-100 text-cyan-800'
+    boisson: 'px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-cyan-100 text-cyan-800',
+    'amuse-gueule': 'px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-pink-100 text-pink-800'
   }
   return classes[category as keyof typeof classes] || classes.ebook
 }
@@ -124,7 +125,8 @@ const getCategoryLabel = (category: string) => {
     repas: 'Repas',
     ingredient: 'Ingrédient',
     farine: 'Farine',
-    boisson: 'Boisson'
+    boisson: 'Boisson',
+    'amuse-gueule': 'Amuse-gueule'
   }
   return labels[category as keyof typeof labels] || category
 }

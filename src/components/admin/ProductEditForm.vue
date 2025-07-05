@@ -63,6 +63,7 @@
               <option value="ingredient">Ingrédient</option>
               <option value="farine">Farine</option>
               <option value="boisson">Boisson</option>
+              <option value="amuse-gueule">Amuse-gueule</option>
               <option value="program">Programme</option>
             </select>
           </div>

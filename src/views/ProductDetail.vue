@@ -64,6 +64,12 @@
               >
                 Boisson
               </span>
+              <span 
+                v-else-if="product.category === 'amuse-gueule'" 
+                class="bg-pink-500 text-white text-xs px-2 py-1 rounded-full"
+              >
+                Amuse-gueule
+              </span>
             </div>
             <h1 class="font-title font-bold text-3xl text-gray-900">
               {{ product.name }}
@@ -122,6 +128,16 @@
                 <li>Conseils d'utilisation en cuisine</li>
                 <li>Propriétés nutritionnelles</li>
                 <li>Conservation et stockage</li>
+              </ul>
+            </div>
+            
+            <div v-else-if="product.category === 'amuse-gueule'">
+              <h3 class="font-title font-semibold text-lg">Amuse-gueule raffiné</h3>
+              <ul class="list-disc list-inside space-y-1">
+                <li>Bouchées savoureuses et équilibrées</li>
+                <li>Parfait pour l'apéritif ou les collations</li>
+                <li>Ingrédients frais et de qualité</li>
+                <li>Présentation soignée et élégante</li>
               </ul>
             </div>
           </div>

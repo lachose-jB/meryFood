@@ -37,6 +37,12 @@
           Boisson
         </span>
         <span 
+          v-else-if="product.category === 'amuse-gueule'" 
+          class="bg-pink-500 text-white text-xs px-2 py-1 rounded-full"
+        >
+          Amuse-gueule
+        </span>
+        <span 
           v-else
           class="bg-gray-500 text-white text-xs px-2 py-1 rounded-full"
         >

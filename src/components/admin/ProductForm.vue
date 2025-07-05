@@ -63,6 +63,7 @@
               <option value="ingredient">Ingrédient</option>
               <option value="farine">Farine</option>
               <option value="boisson">Boisson</option>
+              <option value="amuse-gueule">Amuse-gueule</option>
               <option value="program">Programme</option>
             </select>
           </div>
@@ -174,6 +175,7 @@ const emit = defineEmits(['close', 'save'])
 const productStore = useProductStore()
 
 type Category = "ebook" | "program" | "repas" | "ingredient" | "farine" | "boisson"
+type Category = "ebook" | "program" | "repas" | "ingredient" | "farine" | "boisson" | "amuse-gueule"
 
 const form = ref({
   name: '',

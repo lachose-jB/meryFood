@@ -110,6 +110,7 @@ const categories = [
   { value: 'ingredient', label: 'Ingrédients' },
   { value: 'farine', label: 'Farines' },
   { value: 'boisson', label: 'Boissons' },
+  { value: 'amuse-gueule', label: 'Amuse-gueules' },
   { value: 'program', label: 'Programmes' }
 ]
 
