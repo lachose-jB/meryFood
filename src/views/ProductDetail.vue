@@ -1,0 +1,215 @@
+<template>
+  <div v-if="product" class="min-h-screen bg-gray-50">
+    <div class="max-w-7xl mx-auto px-4 py-8">
+      <!-- Breadcrumb -->
+      <nav class="mb-8">
+        <ol class="flex items-center space-x-2 text-sm">
+          <li><router-link to="/" class="text-gray-500 hover:text-primary">Accueil</router-link></li>
+          <li class="text-gray-300">/</li>
+          <li><router-link to="/shop" class="text-gray-500 hover:text-primary">Boutique</router-link></li>
+          <li class="text-gray-300">/</li>
+          <li class="text-gray-900">{{ product.name }}</li>
+        </ol>
+      </nav>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+        <!-- Product Image -->
+        <div class="space-y-4">
+          <div class="aspect-square bg-white rounded-xl overflow-hidden shadow-sm">
+            <img 
+              :src="product.image" 
+              :alt="product.name"
+              class="w-full h-full object-cover"
+            >
+          </div>
+        </div>
+
+        <!-- Product Info -->
+        <div class="space-y-6">
+          <div>
+            <div class="flex items-center gap-2 mb-2">
+              <span 
+                v-if="product.category === 'supplement'" 
+                class="bg-primary text-white text-xs px-2 py-1 rounded-full"
+              >
+                Complément alimentaire
+              </span>
+              <span 
+                v-else-if="product.category === 'ebook'" 
+                class="bg-blue-500 text-white text-xs px-2 py-1 rounded-full"
+              >
+                E-book numérique
+              </span>
+              <span 
+                v-else-if="product.category === 'program'" 
+                class="bg-purple-500 text-white text-xs px-2 py-1 rounded-full"
+              >
+                Programme complet
+              </span>
+            </div>
+            <h1 class="font-title font-bold text-3xl text-gray-900">
+              {{ product.name }}
+            </h1>
+          </div>
+
+          <div v-if="product.rating" class="flex items-center space-x-2">
+            <div class="flex items-center">
+              <span class="text-yellow-400">★★★★★</span>
+              <span class="ml-2 text-gray-600">{{ product.rating }}/5</span>
+            </div>
+            <span class="text-gray-400">•</span>
+            <span class="text-gray-600">{{ product.reviews }} avis</span>
+          </div>
+
+          <p class="text-gray-600 text-lg leading-relaxed">
+            {{ product.description }}
+          </p>
+
+          <!-- Extended description based on category -->
+          <div class="prose prose-sm max-w-none">
+            <div v-if="product.category === 'supplement'">
+              <h3 class="font-title font-semibold text-lg">Conseils d'utilisation</h3>
+              <p>Prendre 1 capsule par jour avec un verre d'eau, de préférence pendant les repas.</p>
+              
+              <h3 class="font-title font-semibold text-lg">Ingrédients</h3>
+              <p>Extrait naturel de haute qualité, certifié biologique et sans additifs artificiels.</p>
+            </div>
+            
+            <div v-else-if="product.category === 'ebook'">
+              <h3 class="font-title font-semibold text-lg">Contenu du guide</h3>
+              <ul class="list-disc list-inside space-y-1">
+                <li>50+ recettes équilibrées et savoureuses</li>
+                <li>Plans de repas personnalisables</li>
+                <li>Conseils nutritionnels d'experts</li>
+                <li>Guide des superaliments</li>
+              </ul>
+            </div>
+            
+            <div v-else-if="product.category === 'program'">
+              <h3 class="font-title font-semibold text-lg">Programme complet</h3>
+              <ul class="list-disc list-inside space-y-1">
+                <li>21 jours de menus détaillés</li>
+                <li>Liste de courses hebdomadaires</li>
+                <li>Exercices et activités quotidiennes</li>
+                <li>Suivi personnalisé avec notre équipe</li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Price and Add to Cart -->
+          <div class="bg-white p-6 rounded-xl shadow-sm">
+            <div class="flex items-center justify-between mb-4">
+              <div class="text-3xl font-bold text-primary">
+                {{ product.price.toFixed(2) }}€
+              </div>
+              <div class="text-sm text-gray-500">
+                {{ product.inStock ? 'En stock' : 'Rupture de stock' }}
+              </div>
+            </div>
+
+            <div class="flex items-center space-x-4 mb-4">
+              <label class="text-sm font-medium">Quantité:</label>
+              <div class="flex items-center space-x-2">
+                <button 
+                  @click="quantity > 1 && quantity--"
+                  class="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-50"
+                  :disabled="quantity <= 1"
+                >
+                  -
+                </button>
+                <span class="w-8 text-center">{{ quantity }}</span>
+                <button 
+                  @click="quantity++"
+                  class="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-50"
+                >
+                  +
+                </button>
+              </div>
+            </div>
+
+            <div class="space-y-3">
+              <button 
+                @click="addToCart"
+                class="w-full btn-primary"
+                :disabled="!product.inStock"
+              >
+                {{ product.inStock ? 'Ajouter au panier' : 'Produit indisponible' }}
+              </button>
+
+              <button 
+                @click="orderViaWhatsApp"
+                class="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-6 rounded-lg transition-colors duration-200 flex items-center justify-center space-x-2"
+              >
+                <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893A11.821 11.821 0 0020.885 3.488"/>
+                </svg>
+                <span>Commander via WhatsApp</span>
+              </button>
+            </div>
+
+            <!-- WhatsApp Info -->
+            <div class="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg">
+              <div class="flex items-start">
+                <svg class="h-4 w-4 text-green-600 mt-0.5 mr-2" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893A11.821 11.821 0 0020.885 3.488"/>
+                </svg>
+                <div class="text-xs text-green-700">
+                  <p class="font-medium mb-1">Commande directe via WhatsApp</p>
+                  <p>Notre équipe vous contactera pour confirmer votre commande et organiser la livraison.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div v-else class="min-h-screen flex items-center justify-center">
+    <p class="text-gray-500">Produit non trouvé</p>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { ref, computed } from 'vue'
+import { useCartStore } from '../stores/cart'
+import { products } from '../data/products'
+
+interface Props {
+  id: string
+}
+
+const props = defineProps<Props>()
+const cartStore = useCartStore()
+const quantity = ref(1)
+
+const product = computed(() => 
+  products.find(p => p.id === props.id)
+)
+
+const addToCart = () => {
+  if (product.value && product.value.inStock) {
+    cartStore.addToCart(product.value, quantity.value)
+    quantity.value = 1
+  }
+}
+
+const orderViaWhatsApp = () => {
+  if (!product.value) return
+  
+  const message = `🛒 *Commande Produit - Merry's Food*\n\n` +
+    `*${product.value.name}*\n` +
+    `Quantité: ${quantity.value}\n` +
+    `Prix unitaire: ${product.value.price.toFixed(2)}€\n` +
+    `Total: ${(product.value.price * quantity.value).toFixed(2)}€\n\n` +
+    `Description: ${product.value.description}\n\n` +
+    `Je souhaiterais commander ce produit. Pouvez-vous me confirmer la disponibilité et me donner les informations de livraison ?\n\n` +
+    `Merci ! 😊`
+  
+  const encodedMessage = encodeURIComponent(message)
+  const whatsappNumber = "33123456789"
+  const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodedMessage}`
+  
+  window.open(whatsappUrl, '_blank')
+}
+</script>
