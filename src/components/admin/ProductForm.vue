@@ -174,7 +174,6 @@ import { useProductStore } from '../../stores/products'
 const emit = defineEmits(['close', 'save'])
 const productStore = useProductStore()
 
-type Category = "ebook" | "program" | "repas" | "ingredient" | "farine" | "boisson"
 type Category = "ebook" | "program" | "repas" | "ingredient" | "farine" | "boisson" | "amuse-gueule"
 
 const form = ref({
