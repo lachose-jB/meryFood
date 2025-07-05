@@ -21,23 +21,5 @@ export default defineConfig({
       }
     },
     chunkSizeWarningLimit: 1000, // en kB
-  },
-  server: {
-    headers: {
-      'X-Content-Type-Options': 'nosniff',
-      'X-XSS-Protection': '1; mode=block',
-      'Referrer-Policy': 'strict-origin-when-cross-origin',
-      'Permissions-Policy': 'geolocation=(), microphone=(), camera=()',
-      'Strict-Transport-Security': 'max-age=63072000; includeSubDomains; preload',
-      'Content-Security-Policy': 
-        "default-src 'self'; " +
-        "connect-src 'self'; " +
-        "img-src 'self' https://www.google.com https://www.google.fr data:; " +
-        "script-src 'self'; " +
-        "style-src 'self' 'unsafe-inline'; " +
-        "font-src 'self'; " +
-        "frame-src https://www.google.com; " +
-        "form-action 'self';"
-    }
   }
 })
