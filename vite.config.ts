@@ -19,7 +19,8 @@ export default defineConfig({
           ui: ['@headlessui/vue', '@heroicons/vue']
         }
       }
-    }
+    },
+    chunkSizeWarningLimit: 1000 // en kB, par exemple
   },
   server: {
     headers: {

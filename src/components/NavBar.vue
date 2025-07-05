@@ -103,7 +103,6 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useRouter } from 'vue-router'
 import { 
   ShoppingBagIcon, 
   Bars3Icon, 
@@ -113,13 +112,11 @@ import {
 import { useCartStore } from '../stores/cart'
 import { useAuthStore } from '../stores/auth'
 
-const router = useRouter()
 const cartStore = useCartStore()
 const authStore = useAuthStore()
 const mobileMenuOpen = ref(false)
 
 // Masquer le lien admin pour le public (peut être activé via console pour debug)
-const showAdminLogin = ref(false)
 
 const navigation = [
   { name: 'Accueil', href: '/' },
@@ -129,10 +126,4 @@ const navigation = [
   { name: 'Blog', href: '/blog' },
   { name: 'Contact', href: '/contact' }
 ]
-
-const logout = () => {
-  authStore.logout()
-  mobileMenuOpen.value = false
-  router.push('/')
-}
 </script>

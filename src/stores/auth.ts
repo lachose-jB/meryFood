@@ -22,7 +22,7 @@ export interface User {
 
 export const useAuthStore = defineStore('auth', () => {
   const user = ref<User | null>(null)
-  const sessionTimeout = ref<number | null>(null)
+  const sessionTimeout = ref<ReturnType<typeof setTimeout> | null>(null)
   const loginAttempts = ref(0)
   const lockoutUntil = ref<number | null>(null)
   const isAuthenticated = computed(() => !!user.value)
@@ -104,7 +104,9 @@ export const useAuthStore = defineStore('auth', () => {
           errorMessage = 'Adresse email invalide. Vérifiez le format de votre email.'
           break
         case 'auth/too-many-requests':
-          errorMessage = 'Trop de tentatives de connexion. Veuillez patienter avant de réessayer.'
+          errorMessage = 'Trop de tentatives de connexion. Compte temporairement verrouillé.'
+          lockoutUntil.value = Date.now() + LOCKOUT_DURATION
+          localStorage.setItem('lockoutUntil', lockoutUntil.value.toString())
           break
         case 'auth/user-disabled':
           errorMessage = 'Ce compte utilisateur a été désactivé.'
@@ -129,10 +131,6 @@ export const useAuthStore = defineStore('auth', () => {
           break
         case 'auth/requires-recent-login':
           errorMessage = 'Cette opération nécessite une connexion récente. Reconnectez-vous.'
-          break
-        case 'auth/too-many-requests':
-          errorMessage = 'Trop de tentatives de connexion. Compte temporairement verrouillé.'
-          lockoutUntil.value = Date.now() + LOCKOUT_DURATION
           break
         default:
           if (error.message) {
@@ -210,7 +208,7 @@ export const useAuthStore = defineStore('auth', () => {
           
           unsubscribe()
         },
-        (error) => {
+        () => { // <-- ici, on ne déclare plus error
           user.value = null
           localStorage.removeItem('auth_session')
           resolve(false)

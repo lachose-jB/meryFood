@@ -269,9 +269,9 @@ const handleSubmit = async () => {
       tags: tagsInput.value.split(',').map(tag => tag.trim()).filter(tag => tag)
     }
     
-    const success = await blogStore.addPost(articleData)
+    const postSuccess = await blogStore.addPost(articleData)
     
-    if (success) {
+    if (postSuccess) {
       emit('save', articleData)
       success.value = true
 

@@ -12,7 +12,6 @@ import {
   query,
   where,
   orderBy,
-  limit,
   Timestamp,
   serverTimestamp
 } from 'firebase/firestore'
@@ -554,7 +553,7 @@ export const uploadImage = async (
       setTimeout(() => reject(new Error('Timeout: Upload trop long (30s)')), 30000)
     })
     
-    const uploadResult = await Promise.race([uploadPromise, timeoutPromise]) as any
+    await Promise.race([uploadPromise, timeoutPromise]) // <-- Garde juste l'appel pour attendre l'upload
     
     const downloadURL = await getDownloadURL(imageRef)
     

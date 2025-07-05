@@ -204,7 +204,7 @@ const form = ref({
 
 const selectedDate = ref('')
 const selectedTime = ref('')
-const availableSlots = ref([])
+const availableSlots = ref<Slot[]>([])
 
 const availableDates = ['2025-01-20', '2025-01-21', '2025-01-22', '2025-01-23', '2025-01-24']
 
@@ -241,7 +241,8 @@ const submitBooking = async () => {
       phone: form.value.phone,
       date: selectedDate.value,
       time: selectedTime.value,
-      message: form.value.message
+      message: form.value.message,
+      status: 'pending' // Ajout de la propriété requise
     })
     
     if (success) {
@@ -259,4 +260,18 @@ const submitBooking = async () => {
 onMounted(() => {
   bookingStore.loadBookings()
 })
+</script>
+
+<style>
+/* Add any component-specific styles here */
+</style>
+
+<script lang="ts">
+// Define the Slot interface
+interface Slot {
+  id: string
+  date: string
+  time: string
+  available: boolean
+}
 </script>

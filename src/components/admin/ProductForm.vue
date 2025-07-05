@@ -173,11 +173,13 @@ import { useProductStore } from '../../stores/products'
 const emit = defineEmits(['close', 'save'])
 const productStore = useProductStore()
 
+type Category = "ebook" | "program" | "repas" | "ingredient" | "farine" | "boisson"
+
 const form = ref({
   name: '',
   description: '',
   price: 0,
-  category: '',
+  category: '' as Category | '',
   image: '',
   rating: undefined,
   reviews: undefined,
@@ -257,10 +259,10 @@ const handleSubmit = async () => {
       name: form.value.name,
       description: form.value.description,
       price: form.value.price,
-      category: form.value.category,
+      category: form.value.category as Category,
       image: imageUrl,
-      rating: form.value.rating ?? null,
-      reviews: form.value.reviews ?? null,
+      rating: form.value.rating !== undefined ? form.value.rating : undefined,
+      reviews: form.value.reviews !== undefined ? form.value.reviews : undefined,
       inStock: form.value.inStock
     }
 
