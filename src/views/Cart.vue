@@ -166,7 +166,7 @@ const orderViaWhatsApp = () => {
   const encodedMessage = encodeURIComponent(message)
   
   // Numéro WhatsApp (remplacer par le vrai numéro)
-  const whatsappNumber = "33123456789"
+  const whatsappNumber = "+33782593084"
   
   // Ouvrir WhatsApp
   const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodedMessage}`
