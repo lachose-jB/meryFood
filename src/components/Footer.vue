@@ -56,9 +56,8 @@
         <div>
           <h3 class="font-title font-semibold mb-4">Contact</h3>
           <div class="space-y-2 text-gray-300">
-            <p>📧 contact@merrysfood.fr</p>
-            <p>📞 01 23 45 67 89</p>
-            <p>📍 123 Rue de la Santé, 75001 Paris</p>
+            <p>📧 contact@merysfood.fr</p>
+            <p>Paris</p>
             <a 
               href="https://wa.me/33123456789"
               target="_blank"
