@@ -139,7 +139,7 @@
                 <MapPinIcon class="h-5 w-5 text-primary mt-1 flex-shrink-0" />
                 <div>
                   <p class="font-medium">Adresse</p>
-                  <p class="text-gray-600">123 Rue de la Santé<br>75001 Paris, France</p>
+                  <p class="text-gray-600">Paris, France</p>
                 </div>
               </div>
               <div class="flex items-start space-x-3">
