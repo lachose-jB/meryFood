@@ -38,7 +38,7 @@
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center mb-16">
           <h2 class="font-title font-bold text-3xl lg:text-4xl text-gray-900 mb-4">
-            Pourquoi choisir Merry's Food ?
+            Pourquoi choisir Mery's Food ?
           </h2>
           <p class="text-xl text-gray-600 max-w-3xl mx-auto">
             Une approche complète et personnalisée pour transformer votre relation à l'alimentation
