@@ -124,19 +124,6 @@
           @click="mobileMenuOpen = false"
           class="flex items-center space-x-2 px-3 py-2 text-gray-700 hover:text-primary hover:bg-gray-50 rounded-md transition-colors"
         >
-          <ShieldCheckIcon class="h-4 w-4" />
-          <span>Admin</span>
-        </router-link>
-
-        <div v-if="authStore.isAuthenticated" class="px-3 py-2">
-          <div class="text-sm text-gray-600 mb-2">{{ authStore.user?.name }}</div>
-          <button
-            @click="logout"
-            class="text-gray-700 hover:text-primary transition-colors font-medium"
-          >
-            Déconnexion
-          </button>
-        </div>
       </div>
     </div>
   </nav>
