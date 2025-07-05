@@ -37,25 +37,6 @@
             <span>WhatsApp</span>
           </a>
 
-          <!-- Login Admin (caché pour le public) -->
-          <router-link 
-            v-if="!authStore.isAuthenticated && showAdminLogin"
-            to="/login" 
-            class="hidden text-gray-700 hover:text-primary transition-colors font-medium"
-          >
-            Admin
-          </router-link>
-
-          <div v-if="authStore.isAuthenticated" class="hidden md:flex items-center space-x-2">
-            <span class="text-sm text-gray-600">{{ authStore.user?.name }}</span>
-            <button 
-              @click="logout"
-              class="text-gray-700 hover:text-primary transition-colors font-medium"
-            >
-              Déconnexion
-            </button>
-          </div>
-
           <router-link 
             to="/cart" 
             class="relative p-2 text-gray-700 hover:text-primary transition-colors"
