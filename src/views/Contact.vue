@@ -163,7 +163,7 @@
                 <div>
                   <p class="font-medium">WhatsApp</p>
                   <a 
-                    href="https://wa.me/33123456789"
+                    href="https://wa.me/+33782593084"
                     target="_blank"
                     class="text-green-600 hover:underline"
                   >
