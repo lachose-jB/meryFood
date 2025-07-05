@@ -56,7 +56,7 @@
         <div>
           <h3 class="font-title font-semibold mb-4">Contact</h3>
           <div class="space-y-2 text-gray-300">
-            <p>📧 contact@merysfood.fr</p>
+            <p>📧 graceomeriakiki@gmail.com</p>
             <p>Paris</p>
             <a 
               href="https://wa.me/33123456789"
