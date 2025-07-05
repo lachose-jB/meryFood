@@ -167,7 +167,7 @@
                     target="_blank"
                     class="text-green-600 hover:underline"
                   >
-                    +33 1 23 45 67 89
+                    +330782593084
                   </a>
                 </div>
               </div>
@@ -179,16 +179,8 @@
             <h3 class="font-title font-semibold text-lg mb-4">Horaires d'ouverture</h3>
             <div class="space-y-2">
               <div class="flex justify-between">
-                <span>Lundi - Vendredi</span>
-                <span class="text-gray-600">9h00 - 18h00</span>
-              </div>
-              <div class="flex justify-between">
-                <span>Samedi</span>
-                <span class="text-gray-600">9h00 - 13h00</span>
-              </div>
-              <div class="flex justify-between">
-                <span>Dimanche</span>
-                <span class="text-gray-600">Fermé</span>
+                <span>Lundi - Dimanche</span>
+                <span class="text-gray-600">7h00 - 23h00</span>
               </div>
             </div>
           </div>
