@@ -119,9 +119,7 @@ const editArticle = (article: any) => {
 const deleteArticle = async (id: string) => {
   if (confirm('Êtes-vous sûr de vouloir supprimer cet article ?')) {
     const success = await blogStore.deletePost(id)
-    if (success) {
-      console.log('Article supprimé avec succès')
-    } else {
+    if (!success) {
       alert('Erreur lors de la suppression de l\'article')
     }
   }
@@ -131,7 +129,6 @@ const handleArticleUpdate = async (updatedArticle: BlogPost) => {
   const success = await blogStore.updatePost(updatedArticle.id!, updatedArticle)
   if (success) {
     editingArticle.value = null
-    console.log('Article mis à jour avec succès')
   } else {
     alert('Erreur lors de la mise à jour de l\'article')
   }

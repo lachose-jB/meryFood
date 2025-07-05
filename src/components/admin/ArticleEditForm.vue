@@ -225,7 +225,6 @@ const handleImageUpload = async (event: Event) => {
       const previewUrl = URL.createObjectURL(imageFile)
       imagePreview.value = previewUrl
       
-      console.log('[Image Upload] Fichier sélectionné:', file.name, 'Taille:', (file.size / 1024).toFixed(1), 'Ko')
       
     } catch (err: any) {
       imageError.value = err.message
@@ -244,16 +243,13 @@ const handleSubmit = async () => {
   success.value = false
   
   try {
-    let imageUrl = form.value.image // Garder l'image actuelle par défaut
+    let imageUrl = form.value.image
 
-    // Si une nouvelle image a été sélectionnée
     if (imageFile) {
       uploading.value = true
-      console.log('[Upload] Envoi de la nouvelle image vers Firebase Storage…')
       
       imageUrl = await uploadBlogImage(imageFile)
       
-      console.log('[Upload] Nouvelle image uploadée avec succès:', imageUrl)
       uploading.value = false
     }
 
@@ -269,14 +265,11 @@ const handleSubmit = async () => {
       tags: tagsInput.value.split(',').map(tag => tag.trim()).filter(tag => tag)
     }
     
-    console.log('[Firebase] Données de l\'article à modifier:', articleData)
-    
     emit('save', articleData)
     success.value = true
 
   } catch (err: any) {
     error.value = err.message || 'Erreur lors de la modification de l\'article'
-    console.error(err)
   } finally {
     loading.value = false
     uploading.value = false

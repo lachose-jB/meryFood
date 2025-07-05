@@ -107,18 +107,24 @@ const editingProduct = ref<Product | null>(null)
 
 const getCategoryClass = (category: string) => {
   const classes = {
-    supplement: 'px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-primary/10 text-primary',
     ebook: 'px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800',
-    program: 'px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-purple-100 text-purple-800'
+    program: 'px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-purple-100 text-purple-800',
+    repas: 'px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800',
+    ingredient: 'px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-orange-100 text-orange-800',
+    farine: 'px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800',
+    boisson: 'px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-cyan-100 text-cyan-800'
   }
-  return classes[category as keyof typeof classes] || classes.supplement
+  return classes[category as keyof typeof classes] || classes.ebook
 }
 
 const getCategoryLabel = (category: string) => {
   const labels = {
-    supplement: 'Complément',
     ebook: 'E-book',
-    program: 'Programme'
+    program: 'Programme',
+    repas: 'Repas',
+    ingredient: 'Ingrédient',
+    farine: 'Farine',
+    boisson: 'Boisson'
   }
   return labels[category as keyof typeof labels] || category
 }
@@ -130,9 +136,7 @@ const editProduct = (product: any) => {
 const deleteProduct = async (id: string) => {
   if (confirm('Êtes-vous sûr de vouloir supprimer ce produit ?')) {
     const success = await productStore.deleteProduct(id)
-    if (success) {
-      console.log('Produit supprimé avec succès')
-    } else {
+    if (!success) {
       alert('Erreur lors de la suppression du produit')
     }
   }
@@ -142,7 +146,6 @@ const handleProductUpdate = async (updatedProduct: Product) => {
   const success = await productStore.updateProduct(updatedProduct.id!, updatedProduct)
   if (success) {
     editingProduct.value = null
-    console.log('Produit mis à jour avec succès')
   } else {
     alert('Erreur lors de la mise à jour du produit')
   }

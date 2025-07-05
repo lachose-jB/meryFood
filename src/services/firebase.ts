@@ -22,9 +22,6 @@ import {
   getDownloadURL 
 } from 'firebase/storage'
 
-// =====================================================
-// COLLECTIONS FIRESTORE
-// =====================================================
 const COLLECTIONS = {
   PRODUCTS: 'products',
   BLOG_POSTS: 'blog_posts',
@@ -33,15 +30,9 @@ const COLLECTIONS = {
   CONTACT_MESSAGES: 'contact_messages'
 } as const
 
-// =====================================================
-// SERVICES PRODUITS (FIRESTORE)
-// =====================================================
-
 export const productService = {
-  // Récupérer tous les produits
   async getAll(): Promise<Product[]> {
     try {
-      console.log('[Firestore] Récupération des produits...')
       const productsRef = collection(db, COLLECTIONS.PRODUCTS)
       const q = query(productsRef, orderBy('createdAt', 'desc'))
       const snapshot = await getDocs(q)
@@ -51,13 +42,9 @@ export const productService = {
         ...doc.data()
       })) as Product[]
       
-      console.log('[Firestore] Produits récupérés:', products.length)
       return products
     } catch (error: any) {
-      console.error('Erreur lors de la récupération des produits:', error)
-      
       if (error?.code === 'permission-denied') {
-        console.error('PERMISSION DENIED: Vérifiez les règles de sécurité Firestore')
         throw new Error('Accès refusé aux données des produits. Vérifiez la configuration Firebase.')
       }
       
@@ -65,10 +52,8 @@ export const productService = {
     }
   },
 
-  // Récupérer un produit par ID
   async getById(id: string): Promise<Product | null> {
     try {
-      console.log('[Firestore] Récupération du produit:', id)
       const productRef = doc(db, COLLECTIONS.PRODUCTS, id)
       const snapshot = await getDoc(productRef)
       
@@ -77,16 +62,11 @@ export const productService = {
           id: snapshot.id,
           ...snapshot.data()
         } as Product
-        console.log('[Firestore] Produit trouvé:', product)
         return product
       }
-      console.log('[Firestore] Produit non trouvé:', id)
       return null
     } catch (error: any) {
-      console.error('Erreur lors de la récupération du produit:', error)
-      
       if (error?.code === 'permission-denied') {
-        console.error('PERMISSION DENIED: Vérifiez les règles de sécurité Firestore')
         throw new Error('Accès refusé aux données du produit. Vérifiez la configuration Firebase.')
       }
       
@@ -94,10 +74,8 @@ export const productService = {
     }
   },
 
-  // Récupérer produits par catégorie
   async getByCategory(category: string): Promise<Product[]> {
     try {
-      console.log('[Firestore] Récupération par catégorie:', category)
       const productsRef = collection(db, COLLECTIONS.PRODUCTS)
       const q = query(
         productsRef, 
@@ -111,13 +89,9 @@ export const productService = {
         ...doc.data()
       })) as Product[]
       
-      console.log('[Firestore] Produits par catégorie récupérés:', products.length)
       return products
     } catch (error: any) {
-      console.error('Erreur lors de la récupération par catégorie:', error)
-      
       if (error?.code === 'permission-denied') {
-        console.error('PERMISSION DENIED: Vérifiez les règles de sécurité Firestore')
         throw new Error('Accès refusé aux données des produits. Vérifiez la configuration Firebase.')
       }
       
@@ -125,10 +99,8 @@ export const productService = {
     }
   },
 
-  // Ajouter un produit
   async add(product: Omit<Product, 'id'>): Promise<string | null> {
     try {
-      console.log('[Firestore] Ajout d\'un nouveau produit:', product)
       const productsRef = collection(db, COLLECTIONS.PRODUCTS)
       
       const productData = {
@@ -139,13 +111,9 @@ export const productService = {
       
       const docRef = await addDoc(productsRef, productData)
       
-      console.log('[Firestore] Produit ajouté avec succès:', docRef.id)
       return docRef.id
     } catch (error: any) {
-      console.error('Erreur lors de l\'ajout du produit:', error)
-      
       if (error?.code === 'permission-denied') {
-        console.error('PERMISSION DENIED: Authentification requise pour ajouter des produits')
         throw new Error('Authentification requise pour ajouter des produits.')
       }
       
@@ -153,23 +121,17 @@ export const productService = {
     }
   },
 
-  // Mettre à jour un produit
   async update(id: string, updates: Partial<Product>): Promise<boolean> {
     try {
-      console.log('[Firestore] Mise à jour du produit:', id, updates)
       const productRef = doc(db, COLLECTIONS.PRODUCTS, id)
       await updateDoc(productRef, {
         ...updates,
         updatedAt: serverTimestamp()
       })
       
-      console.log('[Firestore] Produit mis à jour avec succès:', id)
       return true
     } catch (error: any) {
-      console.error('Erreur lors de la mise à jour du produit:', error)
-      
       if (error?.code === 'permission-denied') {
-        console.error('PERMISSION DENIED: Authentification requise pour modifier des produits')
         throw new Error('Authentification requise pour modifier des produits.')
       }
       
@@ -177,20 +139,14 @@ export const productService = {
     }
   },
 
-  // Supprimer un produit
   async delete(id: string): Promise<boolean> {
     try {
-      console.log('[Firestore] Suppression du produit:', id)
       const productRef = doc(db, COLLECTIONS.PRODUCTS, id)
       await deleteDoc(productRef)
       
-      console.log('[Firestore] Produit supprimé avec succès:', id)
       return true
     } catch (error: any) {
-      console.error('Erreur lors de la suppression du produit:', error)
-      
       if (error?.code === 'permission-denied') {
-        console.error('PERMISSION DENIED: Authentification requise pour supprimer des produits')
         throw new Error('Authentification requise pour supprimer des produits.')
       }
       
@@ -199,15 +155,9 @@ export const productService = {
   }
 }
 
-// =====================================================
-// SERVICES BLOG (FIRESTORE)
-// =====================================================
-
 export const blogService = {
-  // Récupérer tous les articles
   async getAll(): Promise<BlogPost[]> {
     try {
-      console.log('[Firestore] Récupération des articles...')
       const postsRef = collection(db, COLLECTIONS.BLOG_POSTS)
       const q = query(postsRef, orderBy('date', 'desc'))
       const snapshot = await getDocs(q)
@@ -217,13 +167,9 @@ export const blogService = {
         ...doc.data()
       })) as BlogPost[]
       
-      console.log('[Firestore] Articles récupérés:', posts.length)
       return posts
     } catch (error: any) {
-      console.error('Erreur lors de la récupération des articles:', error)
-      
       if (error?.code === 'permission-denied') {
-        console.error('PERMISSION DENIED: Vérifiez les règles de sécurité Firestore pour blog_posts')
         throw new Error('Accès refusé aux articles du blog. Vérifiez la configuration Firebase.')
       }
       
@@ -231,10 +177,8 @@ export const blogService = {
     }
   },
 
-  // Récupérer un article par ID
   async getById(id: string): Promise<BlogPost | null> {
     try {
-      console.log('[Firestore] Récupération de l\'article:', id)
       const postRef = doc(db, COLLECTIONS.BLOG_POSTS, id)
       const snapshot = await getDoc(postRef)
       
@@ -243,16 +187,11 @@ export const blogService = {
           id: snapshot.id,
           ...snapshot.data()
         } as BlogPost
-        console.log('[Firestore] Article trouvé:', post)
         return post
       }
-      console.log('[Firestore] Article non trouvé:', id)
       return null
     } catch (error: any) {
-      console.error('Erreur lors de la récupération de l\'article:', error)
-      
       if (error?.code === 'permission-denied') {
-        console.error('PERMISSION DENIED: Vérifiez les règles de sécurité Firestore')
         throw new Error('Accès refusé à l\'article. Vérifiez la configuration Firebase.')
       }
       
@@ -260,10 +199,8 @@ export const blogService = {
     }
   },
 
-  // Récupérer articles par tag
   async getByTag(tag: string): Promise<BlogPost[]> {
     try {
-      console.log('[Firestore] Récupération par tag:', tag)
       const postsRef = collection(db, COLLECTIONS.BLOG_POSTS)
       const q = query(
         postsRef, 
@@ -277,13 +214,9 @@ export const blogService = {
         ...doc.data()
       })) as BlogPost[]
       
-      console.log('[Firestore] Articles par tag récupérés:', posts.length)
       return posts
     } catch (error: any) {
-      console.error('Erreur lors de la récupération par tag:', error)
-      
       if (error?.code === 'permission-denied') {
-        console.error('PERMISSION DENIED: Vérifiez les règles de sécurité Firestore')
         throw new Error('Accès refusé aux articles. Vérifiez la configuration Firebase.')
       }
       
@@ -291,10 +224,8 @@ export const blogService = {
     }
   },
 
-  // Ajouter un article
   async add(article: Omit<BlogPost, 'id'>): Promise<string | null> {
     try {
-      console.log('[Firestore] Ajout d\'un nouvel article:', article)
       const postsRef = collection(db, COLLECTIONS.BLOG_POSTS)
       
       const articleData = {
@@ -305,13 +236,9 @@ export const blogService = {
       
       const docRef = await addDoc(postsRef, articleData)
       
-      console.log('[Firestore] Article ajouté avec succès:', docRef.id)
       return docRef.id
     } catch (error: any) {
-      console.error('Erreur lors de l\'ajout de l\'article:', error)
-      
       if (error?.code === 'permission-denied') {
-        console.error('PERMISSION DENIED: Authentification requise pour ajouter des articles')
         throw new Error('Authentification requise pour ajouter des articles.')
       }
       
@@ -319,23 +246,17 @@ export const blogService = {
     }
   },
 
-  // Mettre à jour un article
   async update(id: string, updates: Partial<BlogPost>): Promise<boolean> {
     try {
-      console.log('[Firestore] Mise à jour de l\'article:', id, updates)
       const postRef = doc(db, COLLECTIONS.BLOG_POSTS, id)
       await updateDoc(postRef, {
         ...updates,
         updatedAt: serverTimestamp()
       })
       
-      console.log('[Firestore] Article mis à jour avec succès:', id)
       return true
     } catch (error: any) {
-      console.error('Erreur lors de la mise à jour de l\'article:', error)
-      
       if (error?.code === 'permission-denied') {
-        console.error('PERMISSION DENIED: Authentification requise pour modifier des articles')
         throw new Error('Authentification requise pour modifier des articles.')
       }
       
@@ -343,20 +264,14 @@ export const blogService = {
     }
   },
 
-  // Supprimer un article
   async delete(id: string): Promise<boolean> {
     try {
-      console.log('[Firestore] Suppression de l\'article:', id)
       const postRef = doc(db, COLLECTIONS.BLOG_POSTS, id)
       await deleteDoc(postRef)
       
-      console.log('[Firestore] Article supprimé avec succès:', id)
       return true
     } catch (error: any) {
-      console.error('Erreur lors de la suppression de l\'article:', error)
-      
       if (error?.code === 'permission-denied') {
-        console.error('PERMISSION DENIED: Authentification requise pour supprimer des articles')
         throw new Error('Authentification requise pour supprimer des articles.')
       }
       
@@ -364,10 +279,6 @@ export const blogService = {
     }
   }
 }
-
-// =====================================================
-// SERVICES CONSULTATIONS (FIRESTORE)
-// =====================================================
 
 export interface Booking {
   id?: string
@@ -383,10 +294,8 @@ export interface Booking {
 }
 
 export const bookingService = {
-  // Récupérer toutes les réservations
   async getAll(): Promise<Booking[]> {
     try {
-      console.log('[Firestore] Récupération des réservations...')
       const bookingsRef = collection(db, COLLECTIONS.BOOKINGS)
       const q = query(bookingsRef, orderBy('createdAt', 'desc'))
       const snapshot = await getDocs(q)
@@ -396,13 +305,9 @@ export const bookingService = {
         ...doc.data()
       })) as Booking[]
       
-      console.log('[Firestore] Réservations récupérées:', bookings.length)
       return bookings
     } catch (error: any) {
-      console.error('Erreur lors de la récupération des réservations:', error)
-      
       if (error?.code === 'permission-denied') {
-        console.error('PERMISSION DENIED: Authentification requise pour voir les réservations')
         throw new Error('Authentification requise pour accéder aux réservations.')
       }
       
@@ -410,10 +315,8 @@ export const bookingService = {
     }
   },
 
-  // Ajouter une réservation
   async add(booking: Omit<Booking, 'id'>): Promise<string | null> {
     try {
-      console.log('[Firestore] Ajout d\'une nouvelle réservation:', booking)
       const bookingsRef = collection(db, COLLECTIONS.BOOKINGS)
       
       const bookingData = {
@@ -424,13 +327,9 @@ export const bookingService = {
       
       const docRef = await addDoc(bookingsRef, bookingData)
       
-      console.log('[Firestore] Réservation ajoutée avec succès:', docRef.id)
       return docRef.id
     } catch (error: any) {
-      console.error('Erreur lors de l\'ajout de la réservation:', error)
-      
       if (error?.code === 'permission-denied') {
-        console.error('PERMISSION DENIED: Impossible d\'ajouter la réservation')
         throw new Error('Impossible d\'enregistrer la réservation. Vérifiez la configuration Firebase.')
       }
       
@@ -438,23 +337,17 @@ export const bookingService = {
     }
   },
 
-  // Mettre à jour une réservation
   async update(id: string, updates: Partial<Booking>): Promise<boolean> {
     try {
-      console.log('[Firestore] Mise à jour de la réservation:', id, updates)
       const bookingRef = doc(db, COLLECTIONS.BOOKINGS, id)
       await updateDoc(bookingRef, {
         ...updates,
         updatedAt: serverTimestamp()
       })
       
-      console.log('[Firestore] Réservation mise à jour avec succès:', id)
       return true
     } catch (error: any) {
-      console.error('Erreur lors de la mise à jour de la réservation:', error)
-      
       if (error?.code === 'permission-denied') {
-        console.error('PERMISSION DENIED: Authentification requise pour modifier les réservations')
         throw new Error('Authentification requise pour modifier les réservations.')
       }
       
@@ -462,10 +355,6 @@ export const bookingService = {
     }
   }
 }
-
-// =====================================================
-// SERVICES COMMANDES (FIRESTORE)
-// =====================================================
 
 export interface Order {
   id?: string
@@ -487,10 +376,8 @@ export interface Order {
 }
 
 export const orderService = {
-  // Récupérer toutes les commandes
   async getAll(): Promise<Order[]> {
     try {
-      console.log('[Firestore] Récupération des commandes...')
       const ordersRef = collection(db, COLLECTIONS.ORDERS)
       const q = query(ordersRef, orderBy('createdAt', 'desc'))
       const snapshot = await getDocs(q)
@@ -500,13 +387,9 @@ export const orderService = {
         ...doc.data()
       })) as Order[]
       
-      console.log('[Firestore] Commandes récupérées:', orders.length)
       return orders
     } catch (error: any) {
-      console.error('Erreur lors de la récupération des commandes:', error)
-      
       if (error?.code === 'permission-denied') {
-        console.error('PERMISSION DENIED: Authentification requise pour voir les commandes')
         throw new Error('Authentification requise pour accéder aux commandes.')
       }
       
@@ -514,10 +397,8 @@ export const orderService = {
     }
   },
 
-  // Ajouter une commande
   async add(order: Omit<Order, 'id'>): Promise<string | null> {
     try {
-      console.log('[Firestore] Ajout d\'une nouvelle commande:', order)
       const ordersRef = collection(db, COLLECTIONS.ORDERS)
       
       const orderData = {
@@ -528,13 +409,9 @@ export const orderService = {
       
       const docRef = await addDoc(ordersRef, orderData)
       
-      console.log('[Firestore] Commande ajoutée avec succès:', docRef.id)
       return docRef.id
     } catch (error: any) {
-      console.error('Erreur lors de l\'ajout de la commande:', error)
-      
       if (error?.code === 'permission-denied') {
-        console.error('PERMISSION DENIED: Impossible d\'ajouter la commande')
         throw new Error('Impossible d\'enregistrer la commande. Vérifiez la configuration Firebase.')
       }
       
@@ -542,23 +419,17 @@ export const orderService = {
     }
   },
 
-  // Mettre à jour une commande
   async update(id: string, updates: Partial<Order>): Promise<boolean> {
     try {
-      console.log('[Firestore] Mise à jour de la commande:', id, updates)
       const orderRef = doc(db, COLLECTIONS.ORDERS, id)
       await updateDoc(orderRef, {
         ...updates,
         updatedAt: serverTimestamp()
       })
       
-      console.log('[Firestore] Commande mise à jour avec succès:', id)
       return true
     } catch (error: any) {
-      console.error('Erreur lors de la mise à jour de la commande:', error)
-      
       if (error?.code === 'permission-denied') {
-        console.error('PERMISSION DENIED: Authentification requise pour modifier les commandes')
         throw new Error('Authentification requise pour modifier les commandes.')
       }
       
@@ -566,10 +437,6 @@ export const orderService = {
     }
   }
 }
-
-// =====================================================
-// SERVICES MESSAGES DE CONTACT (FIRESTORE)
-// =====================================================
 
 export interface ContactMessage {
   id?: string
@@ -584,10 +451,8 @@ export interface ContactMessage {
 }
 
 export const contactService = {
-  // Récupérer tous les messages
   async getAll(): Promise<ContactMessage[]> {
     try {
-      console.log('[Firestore] Récupération des messages...')
       const messagesRef = collection(db, COLLECTIONS.CONTACT_MESSAGES)
       const q = query(messagesRef, orderBy('createdAt', 'desc'))
       const snapshot = await getDocs(q)
@@ -597,13 +462,9 @@ export const contactService = {
         ...doc.data()
       })) as ContactMessage[]
       
-      console.log('[Firestore] Messages récupérés:', messages.length)
       return messages
     } catch (error: any) {
-      console.error('Erreur lors de la récupération des messages:', error)
-      
       if (error?.code === 'permission-denied') {
-        console.error('PERMISSION DENIED: Authentification requise pour voir les messages')
         throw new Error('Authentification requise pour accéder aux messages.')
       }
       
@@ -611,10 +472,8 @@ export const contactService = {
     }
   },
 
-  // Ajouter un message
   async add(message: Omit<ContactMessage, 'id'>): Promise<string | null> {
     try {
-      console.log('[Firestore] Ajout d\'un nouveau message:', message)
       const messagesRef = collection(db, COLLECTIONS.CONTACT_MESSAGES)
       
       const messageData = {
@@ -624,13 +483,9 @@ export const contactService = {
       
       const docRef = await addDoc(messagesRef, messageData)
       
-      console.log('[Firestore] Message ajouté avec succès:', docRef.id)
       return docRef.id
     } catch (error: any) {
-      console.error('Erreur lors de l\'ajout du message:', error)
-      
       if (error?.code === 'permission-denied') {
-        console.error('PERMISSION DENIED: Impossible d\'ajouter le message')
         throw new Error('Impossible d\'envoyer le message. Vérifiez la configuration Firebase.')
       }
       
@@ -638,10 +493,6 @@ export const contactService = {
     }
   }
 }
-
-// =====================================================
-// VALIDATION DES FICHIERS SIMPLIFIÉE
-// =====================================================
 
 interface FileValidationOptions {
   maxSize?: number // en bytes
@@ -674,35 +525,21 @@ export const validateImageFile = async (file: File, options: FileValidationOptio
   }
 }
 
-// =====================================================
-// SERVICE D'UPLOAD D'IMAGES AVEC STORAGE
-// =====================================================
-
 export const uploadImage = async (
   file: File, 
   folder: string = 'images',
   validationOptions?: FileValidationOptions
 ): Promise<string> => {
   try {
-    console.log('[Firebase Storage] Début de l\'upload:', file.name, 'dans le dossier:', folder)
-    
-    // Validation du fichier (taille et format uniquement)
     await validateImageFile(file, validationOptions)
-    console.log('[Firebase Storage] Validation du fichier réussie')
     
-    // Génération d'un nom de fichier unique et sécurisé
     const timestamp = Date.now()
     const randomString = Math.random().toString(36).substring(2, 8)
     const fileExtension = file.name.split('.').pop()?.toLowerCase() || 'jpg'
     const fileName = `${folder}_${timestamp}_${randomString}.${fileExtension}`
     
-    console.log('[Firebase Storage] Nom de fichier généré:', fileName)
-    
-    // Création de la référence Storage
     const imageRef = storageRef(storage, `${folder}/${fileName}`)
-    console.log('[Firebase Storage] Référence créée:', imageRef.fullPath)
     
-    // Métadonnées pour l'upload
     const metadata = {
       contentType: file.type,
       customMetadata: {
@@ -712,25 +549,18 @@ export const uploadImage = async (
       }
     }
     
-    // Upload avec timeout
     const uploadPromise = uploadBytes(imageRef, file, metadata)
     const timeoutPromise = new Promise((_, reject) => {
       setTimeout(() => reject(new Error('Timeout: Upload trop long (30s)')), 30000)
     })
     
     const uploadResult = await Promise.race([uploadPromise, timeoutPromise]) as any
-    console.log('[Firebase Storage] Upload terminé:', uploadResult.metadata.fullPath)
     
-    // Récupération de l'URL de téléchargement
     const downloadURL = await getDownloadURL(imageRef)
-    console.log('[Firebase Storage] URL de téléchargement obtenue:', downloadURL)
     
     return downloadURL
     
   } catch (error: any) {
-    console.error('Erreur lors de l\'upload de l\'image:', error)
-    
-    // Gestion spécifique des erreurs Firebase Storage
     if (error?.code === 'storage/unauthorized') {
       throw new Error('Authentification requise pour uploader des images')
     }
@@ -755,22 +585,15 @@ export const uploadImage = async (
       throw new Error('Erreur inconnue lors de l\'upload')
     }
     
-    // Si c'est une erreur de validation, on la propage telle quelle
     if (error.message.includes('trop volumineuse') || 
         error.message.includes('non supporté')) {
       throw error
     }
     
-    // Erreur générique
     throw new Error('Erreur lors de l\'upload: ' + (error.message || 'Erreur inconnue'))
   }
 }
 
-// =====================================================
-// FONCTIONS UTILITAIRES POUR L'UPLOAD
-// =====================================================
-
-// Upload spécialisé pour les produits
 export const uploadProductImage = async (file: File): Promise<string> => {
   return uploadImage(file, 'products', {
     maxSize: 2 * 1024 * 1024, // 2 MB
@@ -778,7 +601,6 @@ export const uploadProductImage = async (file: File): Promise<string> => {
   })
 }
 
-// Upload spécialisé pour les articles de blog
 export const uploadBlogImage = async (file: File): Promise<string> => {
   return uploadImage(file, 'blog', {
     maxSize: 3 * 1024 * 1024, // 3 MB

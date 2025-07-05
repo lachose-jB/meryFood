@@ -63,7 +63,6 @@
               <option value="ingredient">Ingrédient</option>
               <option value="farine">Farine</option>
               <option value="boisson">Boisson</option>
-              <option value="supplement">Complément alimentaire</option>
               <option value="program">Programme</option>
             </select>
           </div>
@@ -225,7 +224,6 @@ const handleImageUpload = async (event: Event) => {
       const previewUrl = URL.createObjectURL(imageFile)
       imagePreview.value = previewUrl
       
-      console.log('[Image Upload] Fichier sélectionné:', file.name, 'Taille:', (file.size / 1024).toFixed(1), 'Ko')
       
     } catch (err: any) {
       imageError.value = err.message
@@ -242,19 +240,15 @@ const handleSubmit = async () => {
   loading.value = true
   error.value = ''
   success.value = false
-  console.log('[Submit] Lancement du processus de modification…')
 
   try {
-    let imageUrl = form.value.image // Garder l'image actuelle par défaut
+    let imageUrl = form.value.image
 
-    // Si une nouvelle image a été sélectionnée
     if (imageFile) {
       uploading.value = true
-      console.log('[Upload] Envoi de la nouvelle image vers Firebase Storage…')
 
       imageUrl = await uploadProductImage(imageFile)
 
-      console.log('[Upload] Nouvelle image uploadée avec succès:', imageUrl)
       uploading.value = false
     }
 
@@ -270,13 +264,10 @@ const handleSubmit = async () => {
       inStock: form.value.inStock
     }
 
-    console.log('[Firebase] Données du produit à modifier:', productData)
-
     emit('save', productData)
     success.value = true
 
   } catch (e: any) {
-    console.error('[Erreur]', e)
     error.value = e.message || "Erreur lors de la modification du produit"
   } finally {
     loading.value = false

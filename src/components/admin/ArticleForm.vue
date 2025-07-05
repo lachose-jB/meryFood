@@ -225,7 +225,6 @@ const handleImageUpload = async (event: Event) => {
       const previewUrl = URL.createObjectURL(imageFile)
       imagePreview.value = previewUrl
       
-      console.log('[Image Upload] Fichier sélectionné:', file.name, 'Taille:', (file.size / 1024).toFixed(1), 'Ko')
       
     } catch (err: any) {
       imageError.value = err.message
@@ -253,11 +252,9 @@ const handleSubmit = async () => {
 
     if (imageFile) {
       uploading.value = true
-      console.log('[Upload] Envoi de l\'image vers Firebase Storage…')
       
       imageUrl = await uploadBlogImage(imageFile)
       
-      console.log('[Upload] Image uploadée avec succès:', imageUrl)
       uploading.value = false
     }
 
@@ -271,8 +268,6 @@ const handleSubmit = async () => {
       readTime: form.value.readTime,
       tags: tagsInput.value.split(',').map(tag => tag.trim()).filter(tag => tag)
     }
-    
-    console.log('[Firebase] Données de l\'article à ajouter:', articleData)
     
     const success = await blogStore.addPost(articleData)
     
@@ -299,7 +294,6 @@ const handleSubmit = async () => {
     }
   } catch (err: any) {
     error.value = err.message || 'Erreur lors de la publication de l\'article'
-    console.error(err)
   } finally {
     loading.value = false
     uploading.value = false

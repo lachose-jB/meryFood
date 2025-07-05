@@ -8,6 +8,9 @@ import {
   User as FirebaseUser
 } from 'firebase/auth'
 
+const MAX_LOGIN_ATTEMPTS = 5
+const LOCKOUT_DURATION = 15 * 60 * 1000 // 15 minutes
+
 export interface User {
   id: string
   email: string
@@ -20,38 +23,55 @@ export interface User {
 export const useAuthStore = defineStore('auth', () => {
   const user = ref<User | null>(null)
   const sessionTimeout = ref<number | null>(null)
+  const loginAttempts = ref(0)
+  const lockoutUntil = ref<number | null>(null)
   const isAuthenticated = computed(() => !!user.value)
   const isAdmin = computed(() => user.value?.role === 'admin')
 
-  // Durée de session (2 heures)
   const SESSION_DURATION = 2 * 60 * 60 * 1000
+
+  const isLockedOut = computed(() => {
+    if (!lockoutUntil.value) return false
+    return Date.now() < lockoutUntil.value
+  })
+
+  const sanitizeInput = (input: string): string => {
+    return input.trim().toLowerCase()
+  }
 
   const login = async (email: string, password: string) => {
     try {
+      if (isLockedOut.value) {
+        const remainingTime = Math.ceil((lockoutUntil.value! - Date.now()) / 60000)
+        throw new Error(`Compte temporairement verrouillé. Réessayez dans ${remainingTime} minutes.`)
+      }
+
       if (!email || !password) {
         throw new Error('Email et mot de passe requis')
       }
 
-      console.log('[Auth] Connexion en cours avec Firebase Auth...')
+      const sanitizedEmail = sanitizeInput(email)
+      
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(sanitizedEmail)) {
+        throw new Error('Format d\'email invalide')
+      }
 
-      const userCredential = await signInWithEmailAndPassword(auth, email, password)
+      const userCredential = await signInWithEmailAndPassword(auth, sanitizedEmail, password)
       const firebaseUser = userCredential.user
 
-      console.log('[Auth] Utilisateur Firebase connecté:', firebaseUser.uid)
-
-      // Créer l'objet utilisateur local
       const userData: User = {
         id: firebaseUser.uid,
-        email: firebaseUser.email || email,
+        email: firebaseUser.email || sanitizedEmail,
         name: firebaseUser.displayName || 'Utilisateur',
-        role: 'admin', // Tous les utilisateurs Firebase sont considérés comme admin
+        role: 'admin',
         lastLogin: new Date().toISOString(),
         permissions: ['read', 'write', 'delete', 'admin']
       }
 
       user.value = userData
+      loginAttempts.value = 0
+      lockoutUntil.value = null
 
-      // Enregistrement de la session
       const sessionData = {
         user: userData,
         timestamp: Date.now(),
@@ -64,11 +84,15 @@ export const useAuthStore = defineStore('auth', () => {
       return { success: true, user: userData }
 
     } catch (error: any) {
-      console.error('[Auth] Erreur de connexion:', error)
+      loginAttempts.value++
+      
+      if (loginAttempts.value >= MAX_LOGIN_ATTEMPTS) {
+        lockoutUntil.value = Date.now() + LOCKOUT_DURATION
+        localStorage.setItem('lockoutUntil', lockoutUntil.value.toString())
+      }
 
       let errorMessage = 'Erreur de connexion'
 
-      // Gestion des erreurs Firebase Auth spécifiques
       switch (error.code) {
         case 'auth/user-not-found':
           errorMessage = 'Utilisateur non trouvé. Vérifiez votre adresse email.'
@@ -106,6 +130,10 @@ export const useAuthStore = defineStore('auth', () => {
         case 'auth/requires-recent-login':
           errorMessage = 'Cette opération nécessite une connexion récente. Reconnectez-vous.'
           break
+        case 'auth/too-many-requests':
+          errorMessage = 'Trop de tentatives de connexion. Compte temporairement verrouillé.'
+          lockoutUntil.value = Date.now() + LOCKOUT_DURATION
+          break
         default:
           if (error.message) {
             errorMessage = error.message
@@ -120,30 +148,39 @@ export const useAuthStore = defineStore('auth', () => {
   const logout = async () => {
     try {
       await signOut(auth)
-      console.log('[Auth] Déconnexion Firebase réussie')
     } catch (error) {
-      console.error('[Auth] Erreur lors de la déconnexion Firebase:', error)
+      // Silently handle logout errors
     } finally {
-      // Nettoyage local même en cas d'erreur réseau
       user.value = null
       localStorage.removeItem('auth_session')
+      localStorage.removeItem('lockoutUntil')
       
       if (sessionTimeout.value) {
         clearTimeout(sessionTimeout.value)
         sessionTimeout.value = null
       }
       
+      loginAttempts.value = 0
+      lockoutUntil.value = null
       clearSensitiveData()
     }
   }
 
   const initAuth = () => {
     return new Promise<boolean>((resolve) => {
-      // Écouter les changements d'état d'authentification Firebase
+      const storedLockout = localStorage.getItem('lockoutUntil')
+      if (storedLockout) {
+        const lockoutTime = parseInt(storedLockout)
+        if (Date.now() < lockoutTime) {
+          lockoutUntil.value = lockoutTime
+        } else {
+          localStorage.removeItem('lockoutUntil')
+        }
+      }
+
       const unsubscribe = onAuthStateChanged(auth, 
         (firebaseUser: FirebaseUser | null) => {
           if (firebaseUser) {
-            // Utilisateur connecté
             const userData: User = {
               id: firebaseUser.uid,
               email: firebaseUser.email || '',
@@ -164,21 +201,16 @@ export const useAuthStore = defineStore('auth', () => {
             localStorage.setItem('auth_session', JSON.stringify(sessionData))
             
             setSessionTimeout()
-            console.log('[Auth] Utilisateur Firebase restauré:', firebaseUser.uid)
             resolve(true)
           } else {
-            // Utilisateur non connecté
             user.value = null
             localStorage.removeItem('auth_session')
-            console.log('[Auth] Aucun utilisateur Firebase connecté')
             resolve(false)
           }
           
-          // Se désabonner après la première vérification
           unsubscribe()
         },
         (error) => {
-          console.error('[Auth] Erreur lors de l\'initialisation:', error)
           user.value = null
           localStorage.removeItem('auth_session')
           resolve(false)
@@ -200,7 +232,11 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   const clearSensitiveData = () => {
-    console.log('[Auth] Données sensibles nettoyées')
+    // Clear any sensitive data from memory
+    if (sessionTimeout.value) {
+      clearTimeout(sessionTimeout.value)
+      sessionTimeout.value = null
+    }
   }
 
   const refreshSession = () => {
@@ -229,6 +265,7 @@ export const useAuthStore = defineStore('auth', () => {
     user,
     isAuthenticated,
     isAdmin,
+    isLockedOut,
     login,
     logout,
     initAuth,

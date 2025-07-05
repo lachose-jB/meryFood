@@ -29,13 +29,7 @@
           <div>
             <div class="flex items-center gap-2 mb-2">
               <span 
-                v-if="product.category === 'supplement'" 
-                class="bg-primary text-white text-xs px-2 py-1 rounded-full"
-              >
-                Complément alimentaire
-              </span>
-              <span 
-                v-else-if="product.category === 'ebook'" 
+                v-if="product.category === 'ebook'" 
                 class="bg-blue-500 text-white text-xs px-2 py-1 rounded-full"
               >
                 E-book numérique
@@ -45,6 +39,30 @@
                 class="bg-purple-500 text-white text-xs px-2 py-1 rounded-full"
               >
                 Programme complet
+              </span>
+              <span 
+                v-else-if="product.category === 'repas'" 
+                class="bg-green-500 text-white text-xs px-2 py-1 rounded-full"
+              >
+                Repas
+              </span>
+              <span 
+                v-else-if="product.category === 'ingredient'" 
+                class="bg-orange-500 text-white text-xs px-2 py-1 rounded-full"
+              >
+                Ingrédient
+              </span>
+              <span 
+                v-else-if="product.category === 'farine'" 
+                class="bg-yellow-500 text-white text-xs px-2 py-1 rounded-full"
+              >
+                Farine
+              </span>
+              <span 
+                v-else-if="product.category === 'boisson'" 
+                class="bg-cyan-500 text-white text-xs px-2 py-1 rounded-full"
+              >
+                Boisson
               </span>
             </div>
             <h1 class="font-title font-bold text-3xl text-gray-900">
@@ -67,15 +85,7 @@
 
           <!-- Extended description based on category -->
           <div class="prose prose-sm max-w-none">
-            <div v-if="product.category === 'supplement'">
-              <h3 class="font-title font-semibold text-lg">Conseils d'utilisation</h3>
-              <p>Prendre 1 capsule par jour avec un verre d'eau, de préférence pendant les repas.</p>
-              
-              <h3 class="font-title font-semibold text-lg">Ingrédients</h3>
-              <p>Extrait naturel de haute qualité, certifié biologique et sans additifs artificiels.</p>
-            </div>
-            
-            <div v-else-if="product.category === 'ebook'">
+            <div v-if="product.category === 'ebook'">
               <h3 class="font-title font-semibold text-lg">Contenu du guide</h3>
               <ul class="list-disc list-inside space-y-1">
                 <li>50+ recettes équilibrées et savoureuses</li>
@@ -92,6 +102,26 @@
                 <li>Liste de courses hebdomadaires</li>
                 <li>Exercices et activités quotidiennes</li>
                 <li>Suivi personnalisé avec notre équipe</li>
+              </ul>
+            </div>
+            
+            <div v-else-if="product.category === 'repas'">
+              <h3 class="font-title font-semibold text-lg">Informations nutritionnelles</h3>
+              <ul class="list-disc list-inside space-y-1">
+                <li>Repas équilibré et savoureux</li>
+                <li>Ingrédients frais et de qualité</li>
+                <li>Conseils de préparation inclus</li>
+                <li>Valeurs nutritionnelles détaillées</li>
+              </ul>
+            </div>
+            
+            <div v-else-if="product.category === 'ingredient'">
+              <h3 class="font-title font-semibold text-lg">Utilisation et bienfaits</h3>
+              <ul class="list-disc list-inside space-y-1">
+                <li>Ingrédient naturel de qualité premium</li>
+                <li>Conseils d'utilisation en cuisine</li>
+                <li>Propriétés nutritionnelles</li>
+                <li>Conservation et stockage</li>
               </ul>
             </div>
           </div>

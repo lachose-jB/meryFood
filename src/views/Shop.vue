@@ -110,7 +110,6 @@ const categories = [
   { value: 'ingredient', label: 'Ingrédients' },
   { value: 'farine', label: 'Farines' },
   { value: 'boisson', label: 'Boissons' },
-  { value: 'supplement', label: 'Compléments' },
   { value: 'program', label: 'Programmes' }
 ]
 

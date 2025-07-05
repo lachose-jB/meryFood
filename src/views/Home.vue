@@ -127,7 +127,7 @@ const features = [
   },
   {
     title: 'Produits naturels',
-    description: 'Découvrez notre sélection de compléments et produits 100% naturels.',
+    description: 'Découvrez notre sélection de produits et ingrédients 100% naturels.',
     icon: HeartIcon
   },
   {

@@ -4,7 +4,7 @@ export interface Product {
   description: string
   price: number
   image: string
-  category: 'supplement' | 'ebook' | 'program' | 'repas' | 'ingredient' | 'farine' | 'boisson'
+  category: 'ebook' | 'program' | 'repas' | 'ingredient' | 'farine' | 'boisson'
   inStock: boolean
   rating?: number
   reviews?: number

@@ -8,12 +8,6 @@
       >
       <div class="absolute top-3 right-3">
         <span 
-          v-if="product.category === 'supplement'" 
-          class="bg-primary text-white text-xs px-2 py-1 rounded-full"
-        >
-          Complément
-        </span>
-        <span 
           v-else-if="product.category === 'ebook'" 
           class="bg-blue-500 text-white text-xs px-2 py-1 rounded-full"
         >
@@ -48,6 +42,12 @@
           class="bg-cyan-500 text-white text-xs px-2 py-1 rounded-full"
         >
           Boisson
+        </span>
+        <span 
+          v-else
+          class="bg-gray-500 text-white text-xs px-2 py-1 rounded-full"
+        >
+          Produit
         </span>
       </div>
     </div>
