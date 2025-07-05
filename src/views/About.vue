@@ -90,26 +90,6 @@
 <script setup lang="ts">
 import { HeartIcon, UserGroupIcon, SparklesIcon } from '@heroicons/vue/24/outline'
 
-const team = [
-  {
-    name: 'Dr. Marie Dubois',
-    role: 'Nutritionniste & Fondatrice',
-    description: 'Diplômée en nutrition clinique, spécialisée en nutrition préventive et thérapeutique.',
-    image: 'https://images.pexels.com/photos/5327585/pexels-photo-5327585.jpeg?auto=compress&cs=tinysrgb&w=200'
-  },
-  {
-    name: 'Sophie Martin',
-    role: 'Diététicienne',
-    description: 'Experte en nutrition sportive et accompagnement des troubles alimentaires.',
-    image: 'https://images.pexels.com/photos/5327921/pexels-photo-5327921.jpeg?auto=compress&cs=tinysrgb&w=200'
-  },
-  {
-    name: 'Thomas Leroy',
-    role: 'Conseiller en produits naturels',
-    description: 'Spécialiste en compléments alimentaires et phytothérapie.',
-    image: 'https://images.pexels.com/photos/5215024/pexels-photo-5215024.jpeg?auto=compress&cs=tinysrgb&w=200'
-  }
-]
 
 const values = [
   {
