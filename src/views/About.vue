@@ -28,29 +28,6 @@
       </div>
     </section>
 
-    <!-- Team Section -->
-    <section class="py-16 bg-nature-50">
-      <div class="max-w-7xl mx-auto px-4">
-        <div class="text-center mb-16">
-          <h2 class="font-title font-bold text-3xl text-gray-900 mb-4">Notre équipe</h2>
-          <p class="text-xl text-gray-600">Des professionnels passionnés à votre service</p>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          <div v-for="member in team" :key="member.name" class="bg-white p-6 rounded-xl shadow-sm text-center">
-            <img 
-              :src="member.image" 
-              :alt="member.name"
-              class="w-24 h-24 rounded-full mx-auto mb-4 object-cover"
-            >
-            <h3 class="font-title font-semibold text-lg mb-1">{{ member.name }}</h3>
-            <p class="text-primary font-medium mb-3">{{ member.role }}</p>
-            <p class="text-gray-600 text-sm">{{ member.description }}</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
     <!-- Values Section -->
     <section class="py-16 bg-white">
       <div class="max-w-7xl mx-auto px-4">
