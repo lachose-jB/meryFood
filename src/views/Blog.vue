@@ -78,6 +78,7 @@
             v-for="post in otherPosts" 
             :key="post.id"
             class="bg-white rounded-xl shadow-sm overflow-hidden group hover:shadow-md transition-shadow cursor-pointer"
+            @click="goToArticle(post.id!)"
           >
             <div class="relative h-48 overflow-hidden">
               <img 
@@ -142,8 +143,10 @@
 
 <script setup lang="ts">
 import { computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { useBlogStore } from '../stores/blog'
 
+const router = useRouter()
 const blogStore = useBlogStore()
 
 const featuredPost = computed(() => blogStore.posts[0])
@@ -156,6 +159,10 @@ const formatDate = (dateString: string) => {
     month: 'long', 
     day: 'numeric' 
   })
+}
+
+const goToArticle = (articleId: string) => {
+  router.push(`/article/${articleId}`)
 }
 
 onMounted(() => {

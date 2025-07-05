@@ -196,26 +196,25 @@
   </div>
 
   <div v-else class="min-h-screen flex items-center justify-center">
-    <p class="text-gray-500">Produit non trouvé</p>
+    <div class="text-center">
+      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+      <p class="text-gray-500">Chargement du produit...</p>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
 import { useCartStore } from '../stores/cart'
-import { products } from '../data/products'
+import { useProductStore } from '../stores/products'
+import type { Product } from '../types'
 
-interface Props {
-  id: string
-}
-
-const props = defineProps<Props>()
+const route = useRoute()
 const cartStore = useCartStore()
+const productStore = useProductStore()
 const quantity = ref(1)
-
-const product = computed(() => 
-  products.find(p => p.id === props.id)
-)
+const product = ref<Product | null>(null)
 
 const addToCart = () => {
   if (product.value && product.value.inStock) {
@@ -242,4 +241,11 @@ const orderViaWhatsApp = () => {
   
   window.open(whatsappUrl, '_blank')
 }
+
+onMounted(async () => {
+  const productId = route.params.id as string
+  if (productId) {
+    product.value = await productStore.getProductById(productId)
+  }
+})
 </script>

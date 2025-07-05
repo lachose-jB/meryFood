@@ -9,6 +9,7 @@ import Cart from '../views/Cart.vue'
 import Consultation from '../views/Consultation.vue'
 import About from '../views/About.vue'
 import Blog from '../views/Blog.vue'
+import ArticleDetail from '../views/ArticleDetail.vue'
 import Contact from '../views/Contact.vue'
 import Login from '../views/Login.vue'
 
@@ -24,6 +25,7 @@ const routes = [
   { path: '/consultation', name: 'Consultation', component: Consultation },
   { path: '/about', name: 'About', component: About },
   { path: '/blog', name: 'Blog', component: Blog },
+  { path: '/article/:id', name: 'ArticleDetail', component: ArticleDetail, props: true },
   { path: '/contact', name: 'Contact', component: Contact },
 
   {
