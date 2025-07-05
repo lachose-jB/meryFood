@@ -121,7 +121,7 @@ const orderViaWhatsApp = () => {
     `Merci ! 😊`
   
   const encodedMessage = encodeURIComponent(message)
-  const whatsappNumber = "33123456789"
+  const whatsappNumber = "+33782593084"
   const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodedMessage}`
   
   window.open(whatsappUrl, '_blank')

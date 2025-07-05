@@ -25,7 +25,7 @@
         <div class="flex items-center space-x-4">
           <!-- WhatsApp Contact -->
           <a 
-            href="https://wa.me/33123456789?text=Bonjour%20Merry's%20Food,%20j'aimerais%20avoir%20des%20informations"
+            href="https://wa.me/+33782593084?text=Bonjour%20Merry's%20Food,%20j'aimerais%20avoir%20des%20informations"
             target="_blank"
             class="hidden md:flex items-center space-x-1 text-gray-700 hover:text-green-600 transition-colors font-medium"
           >
@@ -76,7 +76,7 @@
         
         <!-- WhatsApp Mobile -->
         <a
-          href="https://wa.me/33123456789?text=Bonjour%20Merry's%20Food,%20j'aimerais%20avoir%20des%20informations"
+          href="https://wa.me/+33782593084?text=Bonjour%20Merry's%20Food,%20j'aimerais%20avoir%20des%20informations"
           target="_blank"
           @click="mobileMenuOpen = false"
           class="flex items-center space-x-2 px-3 py-2 text-gray-700 hover:text-green-600 hover:bg-gray-50 rounded-md transition-colors"

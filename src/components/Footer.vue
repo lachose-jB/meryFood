@@ -4,18 +4,16 @@
       <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
         <!-- Brand -->
         <div class="space-y-4">
-          <div class="flex items-center space-x-2">
-            <div class="w-10 h-10 bg-primary rounded-full flex items-center justify-center">
-              <span class="text-white font-bold text-lg">M</span>
-            </div>
-            <span class="font-title font-bold text-xl">Merry's Food et nutrition</span>
-          </div>
+          <router-link to="/" class="flex items-center space-x-2">
+          <img src="/logo.jpeg" alt="Logo de Mery's Food" class="w-10 h-10 object-cover rounded-full" />
+          <span class="font-title font-bold text-xl text-white-900">Mery's Food et nutrition</span>
+        </router-link>
           <p class="text-gray-300">
             Votre partenaire santé pour une nutrition équilibrée et un mode de vie sain.
           </p>
           <!-- WhatsApp Contact -->
           <a 
-            href="https://wa.me/33123456789?text=Bonjour%20Merry's%20Food,%20j'aimerais%20avoir%20des%20informations"
+            href="https://wa.me/+33782593084?text=Bonjour%20Merry's%20Food,%20j'aimerais%20avoir%20des%20informations"
             target="_blank"
             class="inline-flex items-center space-x-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors"
           >
@@ -59,7 +57,7 @@
             <p>📧 graceomeriakiki@gmail.com</p>
             <p>Paris</p>
             <a 
-              href="https://wa.me/33123456789"
+              href="https://wa.me/+33782593084"
               target="_blank"
               class="flex items-center space-x-2 text-green-400 hover:text-green-300 transition-colors"
             >
