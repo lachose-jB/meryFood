@@ -153,7 +153,7 @@
                 <EnvelopeIcon class="h-5 w-5 text-primary mt-1 flex-shrink-0" />
                 <div>
                   <p class="font-medium">Email</p>
-                  <p class="text-gray-600">contact@merrysfood.fr</p>
+                  <p class="text-gray-600">meryfood@yahoo.com</p>
                 </div>
               </div>
               <div class="flex items-start space-x-3">
