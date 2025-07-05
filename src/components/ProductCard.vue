@@ -1,16 +1,9 @@
 <template>
   <div class="card overflow-hidden group cursor-pointer" @click="goToProduct">
     <div class="relative overflow-hidden">
-      <img 
-        :src="product.image" 
-        :alt="product.name"
-        class="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
-      >
+      <img :src="product.image" :alt="product.name" class="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300">
       <div class="absolute top-3 right-3">
-        <span 
-          v-else-if="product.category === 'ebook'" 
-          class="bg-blue-500 text-white text-xs px-2 py-1 rounded-full"
-        >
+        <span v-else-if="product.category === 'ebook'" class="bg-blue-500 text-white text-xs px-2 py-1 rounded-full">
           E-book
         </span>
         <span 
