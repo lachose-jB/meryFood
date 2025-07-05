@@ -142,13 +142,7 @@
                   <p class="text-gray-600">Paris, France</p>
                 </div>
               </div>
-              <div class="flex items-start space-x-3">
-                <PhoneIcon class="h-5 w-5 text-primary mt-1 flex-shrink-0" />
-                <div>
-                  <p class="font-medium">Téléphone</p>
-                  <p class="text-gray-600">01 23 45 67 89</p>
-                </div>
-              </div>
+              
               <div class="flex items-start space-x-3">
                 <EnvelopeIcon class="h-5 w-5 text-primary mt-1 flex-shrink-0" />
                 <div>
@@ -210,7 +204,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { MapPinIcon, PhoneIcon, EnvelopeIcon } from '@heroicons/vue/24/outline'
+import { MapPinIcon, EnvelopeIcon } from '@heroicons/vue/24/outline'
 import { contactService } from '../services/firebase'
 
 const form = ref({
