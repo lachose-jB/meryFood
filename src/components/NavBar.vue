@@ -25,16 +25,6 @@
 
         <!-- Cart & Admin & Mobile Menu -->
         <div class="flex items-center space-x-4">
-          <!-- Admin Link - Sécurisé (caché pour le public) -->
-          <router-link 
-            v-if="authStore.isAdmin"
-            to="/admin" 
-            class="hidden md:flex items-center space-x-1 text-gray-700 hover:text-primary transition-colors font-medium"
-          >
-            <ShieldCheckIcon class="h-4 w-4" />
-            <span>Admin</span>
-          </router-link>
-
           <!-- WhatsApp Contact -->
           <a 
             href="https://wa.me/33123456789?text=Bonjour%20Merry's%20Food,%20j'aimerais%20avoir%20des%20informations"
