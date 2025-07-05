@@ -192,7 +192,7 @@
               Pour une réponse rapide, contactez-nous directement via WhatsApp !
             </p>
             <a 
-              href="https://wa.me/33123456789?text=Bonjour%20Merry's%20Food,%20j'aimerais%20avoir%20des%20informations"
+              href="https://wa.me/33123456789?text=Bonjour%20Mery's%20Food,%20j'aimerais%20avoir%20des%20informations"
               target="_blank"
               class="inline-flex items-center space-x-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors"
             >
