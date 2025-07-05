@@ -124,6 +124,9 @@
           @click="mobileMenuOpen = false"
           class="flex items-center space-x-2 px-3 py-2 text-gray-700 hover:text-primary hover:bg-gray-50 rounded-md transition-colors"
         >
+          <ShieldCheckIcon class="h-4 w-4" />
+          <span>Admin</span>
+        </router-link>
       </div>
     </div>
   </nav>
