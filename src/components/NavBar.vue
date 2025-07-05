@@ -7,7 +7,7 @@
           <div class="w-10 h-10 bg-primary rounded-full flex items-center justify-center">
             <span class="text-white font-bold text-lg">M</span>
           </div>
-          <span class="font-title font-bold text-xl text-gray-900">Merry's Food et nutrition</span>
+          <span class="font-title font-bold text-xl text-gray-900">Mery's Food et nutrition</span>
         </router-link>
 
         <!-- Desktop Navigation -->
