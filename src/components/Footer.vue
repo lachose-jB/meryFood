@@ -71,7 +71,7 @@
       </div>
 
       <div class="border-t border-nature-700 mt-8 pt-8 text-center text-gray-300">
-        <p>&copy; 2025 <a href="https://web-sec.fr">web-sec.fr </a>. Tous droits réservés.</p>
+        <p>&copy; 2025 <a href="https://web-sec.fr">web-sec</a>. Tous droits réservés.</p>
       </div>
     </div>
   </footer>
