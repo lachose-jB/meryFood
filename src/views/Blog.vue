@@ -110,7 +110,7 @@
                   </span>
                 </div>
                 <button
-                  @click.stop="goToArticle(post.id!)"
+                  @click="goToArticle(featuredPost.id!)"
                   class="btn-primary w-fit"
                 >
                   <span class="text-primary text-sm font-medium group-hover:underline">
