@@ -108,10 +108,11 @@
                   >
                     #{{ tag }}
                   </span>
-              <button @click="goToArticle(featuredPost.id!)" class="btn-primary w-fit">
-                <span class="text-primary text-sm font-medium group-hover:underline">
-                  Lire →
-                </span>
+                    <button @click="goToArticle(featuredPost.id!)" class="btn-primary w-fit">
+                      <span class="text-primary text-sm font-medium group-hover:underline">
+                        Lire →
+                      </span>
+                </button>
               </div>
             </div>
           </article>
