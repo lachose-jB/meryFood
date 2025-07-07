@@ -110,6 +110,7 @@
                   </button>
               </div>
             </div>
+            </div>
           </article>
         </div>
 
