@@ -74,13 +74,18 @@
 
         <!-- Blog Posts Grid -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          <article v-for="post in otherPosts"  :key="post.id" class="bg-white rounded-xl shadow-sm overflow-hidden group hover:shadow-md transition-shadow cursor-pointer"  @click="goToArticle(post.id!)">
+          <article
+            v-for="post in otherPosts"
+            :key="post.id"
+            class="bg-white rounded-xl shadow-sm overflow-hidden group hover:shadow-md transition-shadow cursor-pointer"
+            @click="goToArticle(post.id!)"
+          >
             <div class="relative h-48 overflow-hidden">
-              <img 
-                :src="post.image" 
+              <img
+                :src="post.image"
                 :alt="post.title"
                 class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-              >
+              />
             </div>
             <div class="p-6">
               <div class="flex items-center space-x-4 text-sm text-gray-500 mb-3">
@@ -96,23 +101,27 @@
               </p>
               <div class="flex items-center justify-between">
                 <div class="flex items-center space-x-2">
-                  <span 
-                    v-for="tag in post.tags.slice(0, 2)" 
+                  <span
+                    v-for="tag in post.tags.slice(0, 2)"
                     :key="tag"
                     class="bg-nature-100 text-nature-800 px-2 py-1 rounded-md text-xs font-medium"
                   >
                     #{{ tag }}
                   </span>
-                    <button @click="goToArticle(featuredPost.id!)" class="btn-primary w-fit">
-                      <span class="text-primary text-sm font-medium group-hover:underline">
-                        Lire →
-                      </span>
-                  </button>
+                </div>
+                <button
+                  @click.stop="goToArticle(post.id!)"
+                  class="btn-primary w-fit"
+                >
+                  <span class="text-primary text-sm font-medium group-hover:underline">
+                    Lire →
+                  </span>
+                </button>
               </div>
-            </div>
             </div>
           </article>
         </div>
+
 
         <!-- Newsletter Signup -->
         <section class="mt-16 bg-primary rounded-2xl p-8 text-center">
