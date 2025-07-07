@@ -177,13 +177,33 @@ const formatDate = (dateString: string) => {
 }
 
 const goToArticle = (articleId: string) => {
-  router.push(`/article/${articleId}`)
+  // Convertir l'ID en titre pour la navigation
+  const article = blogStore.posts.find(post => post.id === articleId)
+  if (article) {
+    const titleSlug = article.title.toLowerCase()
+      .replace(/[^a-z0-9\s-]/g, '')
+      .replace(/\s+/g, '-')
+      .trim()
+    router.push(`/article/${titleSlug}`)
+  }
 }
 
 onMounted(async () => {
-  const articleId = route.params.id as string
-  if (articleId) {
-    article.value = await blogStore.getPostById(articleId)
+  const titleParam = route.params.title as string
+  if (titleParam) {
+    // Charger tous les posts d'abord
+    await blogStore.loadPosts()
+    
+    // Trouver l'article par titre
+    const foundArticle = blogStore.posts.find(post => {
+      const titleSlug = post.title.toLowerCase()
+        .replace(/[^a-z0-9\s-]/g, '')
+        .replace(/\s+/g, '-')
+        .trim()
+      return titleSlug === titleParam
+    })
+    
+    article.value = foundArticle || null
   }
 })
 </script>

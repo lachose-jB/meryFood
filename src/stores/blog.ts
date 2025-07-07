@@ -33,6 +33,16 @@ export const useBlogStore = defineStore('blog', () => {
     }
   }
 
+  // Charger un article par titre (slug)
+  const getPostByTitle = (titleSlug: string): BlogPost | null => {
+    return posts.value.find(post => {
+      const postTitleSlug = post.title.toLowerCase()
+        .replace(/[^a-z0-9\s-]/g, '')
+        .replace(/\s+/g, '-')
+        .trim()
+      return postTitleSlug === titleSlug
+    }) || null
+  }
   // Charger articles par tag
   const getPostsByTag = async (tag: string): Promise<BlogPost[]> => {
     try {
@@ -96,6 +106,7 @@ export const useBlogStore = defineStore('blog', () => {
     error,
     loadPosts,
     getPostById,
+    getPostByTitle,
     getPostsByTag,
     addPost,
     updatePost,

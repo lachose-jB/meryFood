@@ -65,7 +65,7 @@
                   </span>
                 </div>
                 <button class="btn-primary w-fit">
-                  Lire l'article
+                  <span @click="goToArticle(featuredPost.id!)">Lire l'article</span>
                 </button>
               </div>
             </div>
@@ -109,14 +109,9 @@
                     #{{ tag }}
                   </span>
                 </div>
-                <button
-                  @click.stop="goToArticle(featuredPost.id!)"
-                  class="btn-primary w-fit"
-                >
-                  <span class="text-primary text-sm font-medium group-hover:underline">
-                    Lire →
-                  </span>
-                </button>
+                <span class="text-primary text-sm font-medium group-hover:underline">
+                  Lire →
+                </span>
               </div>
             </div>
           </article>
@@ -168,7 +163,15 @@ const formatDate = (dateString: string) => {
 }
 
 const goToArticle = (articleId: string) => {
-  router.push(`/article/${articleId}`)
+  // Trouver l'article et créer un slug à partir du titre
+  const article = blogStore.posts.find(post => post.id === articleId)
+  if (article) {
+    const titleSlug = article.title.toLowerCase()
+      .replace(/[^a-z0-9\s-]/g, '')
+      .replace(/\s+/g, '-')
+      .trim()
+    router.push(`/article/${titleSlug}`)
+  }
 }
 
 onMounted(() => {
