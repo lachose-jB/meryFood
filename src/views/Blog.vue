@@ -74,12 +74,7 @@
 
         <!-- Blog Posts Grid -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          <article 
-            v-for="post in otherPosts" 
-            :key="post.id"
-            class="bg-white rounded-xl shadow-sm overflow-hidden group hover:shadow-md transition-shadow cursor-pointer"
-            @click="goToArticle(post.id!)"
-          >
+          <article v-for="post in otherPosts"  :key="post.id" class="bg-white rounded-xl shadow-sm overflow-hidden group hover:shadow-md transition-shadow cursor-pointer"  @click="goToArticle(post.id!)">
             <div class="relative h-48 overflow-hidden">
               <img 
                 :src="post.image" 
@@ -112,7 +107,7 @@
                       <span class="text-primary text-sm font-medium group-hover:underline">
                         Lire →
                       </span>
-                </button>
+                  </button>
               </div>
             </div>
           </article>
