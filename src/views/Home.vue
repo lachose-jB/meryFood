@@ -24,7 +24,7 @@
           </div>
           <div class="animate-slide-up">
             <img 
-              src="https://images.pexels.com/photos/1640777/pexels-photo-1640777.jpeg?auto=compress&cs=tinysrgb&w=800" 
+              src="/public/hero.jpeg" 
               alt="Nutrition saine"
               class="rounded-2xl shadow-xl w-full h-96 object-cover"
             >
