@@ -6,7 +6,7 @@
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           <div class="space-y-6">
             <h1 class="font-title font-bold text-4xl text-gray-900">
-              À propos de <span class="text-primary">Mery Food</span>
+              À propos de <span class="text-primary">Grace KIKI</span>
             </h1>
             <p class="text-xl text-gray-600 leading-relaxed">
               Fondatrice de Mery Food, experte en nutrition humaine diplômée de l’EDNH Lyon et titulaire d’un Master en Food Business & Management, Grace KIKI allie savoir scientifique, héritage béninois et passion pour la cuisine saine.
