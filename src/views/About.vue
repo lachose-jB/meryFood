@@ -6,20 +6,18 @@
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           <div class="space-y-6">
             <h1 class="font-title font-bold text-4xl text-gray-900">
-              À propos de <span class="text-primary">NutriVie</span>
+              À propos de <span class="text-primary">Mery Food</span>
             </h1>
             <p class="text-xl text-gray-600 leading-relaxed">
-              Votre partenaire de confiance pour une transformation durable de vos habitudes alimentaires 
-              et l'atteinte de vos objectifs santé.
+              Fondatrice de Mery Food, experte en nutrition humaine diplômée de l’EDNH Lyon et titulaire d’un Master en Food Business & Management, Grace KIKI allie savoir scientifique, héritage béninois et passion pour la cuisine saine.
             </p>
             <p class="text-gray-600">
-              Depuis plus de 10 ans, nous accompagnons nos clients vers une meilleure santé grâce à 
-              une approche personnalisée et bienveillante de la nutrition.
+              À travers Mery Food, elle propose des plats faits maison et des produits d’épicerie sélectionnés, inspirés de la cuisine africaine, pensés pour allier équilibre nutritionnel, plaisir gustatif et authenticité.
             </p>
           </div>
           <div>
             <img 
-              src="https://images.pexels.com/photos/5327585/pexels-photo-5327585.jpeg?auto=compress&cs=tinysrgb&w=800" 
+              src="/public/photo.jpeg" 
               alt="À propos de NutriVie"
               class="rounded-2xl shadow-xl w-full h-96 object-cover"
             >
@@ -32,7 +30,7 @@
     <section class="py-16 bg-white">
       <div class="max-w-7xl mx-auto px-4">
         <div class="text-center mb-16">
-          <h2 class="font-title font-bold text-3xl text-gray-900 mb-4">Nos valeurs</h2>
+          <h2 class="font-title font-bold text-3xl text-gray-900 mb-4">Ses valeurs</h2>
           <p class="text-xl text-gray-600">Ce qui guide notre approche au quotidien</p>
         </div>
 
@@ -63,22 +61,20 @@
     <!-- Mission Section -->
     <section class="py-16 bg-gray-50">
       <div class="max-w-4xl mx-auto px-4 text-center">
-        <h2 class="font-title font-bold text-3xl text-gray-900 mb-8">Notre mission</h2>
+        <h2 class="font-title font-bold text-3xl text-gray-900 mb-8">Objectif</h2>
         <div class="bg-white p-8 rounded-2xl shadow-sm">
           <p class="text-xl text-gray-600 leading-relaxed mb-6">
-            "Rendre la nutrition accessible à tous en proposant des solutions personnalisées, 
-            des produits de qualité et un accompagnement bienveillant pour une transformation 
-            durable de vos habitudes alimentaires."
+            "réconcilier tradition et modernité dans l’assiette, pour une alimentation plus saine, gourmande et consciente."
           </p>
           <div class="flex items-center justify-center space-x-4">
             <img 
-              src="https://images.pexels.com/photos/5327585/pexels-photo-5327585.jpeg?auto=compress&cs=tinysrgb&w=100" 
-              alt="Dr. Marie Dubois"
+              src="/public/photo.jpeg" 
+              alt="Grace KIKI"
               class="w-12 h-12 rounded-full object-cover"
             >
             <div class="text-left">
-              <div class="font-semibold">Dr. Marie Dubois</div>
-              <div class="text-gray-600 text-sm">Fondatrice & Nutritionniste</div>
+              <div class="font-semibold">Grace KIKI</div>
+              <div class="text-gray-600 text-sm">experte en nutrition humaine</div>
             </div>
           </div>
         </div>
@@ -88,24 +84,29 @@
 </template>
 
 <script setup lang="ts">
-import { HeartIcon, UserGroupIcon, SparklesIcon } from '@heroicons/vue/24/outline'
+import { HeartIcon, UserGroupIcon, SparklesIcon, UserCircleIcon } from '@heroicons/vue/24/outline'
 
 
 const values = [
   {
-    title: 'Bienveillance',
+    title: 'Santé & bien-être',
     description: 'Nous accompagnons chaque personne avec empathie et sans jugement.',
     icon: HeartIcon
   },
   {
-    title: 'Expertise',
+    title: 'Plaisir sans culpabilité',
     description: 'Notre équipe de professionnels formés vous garantit des conseils de qualité.',
     icon: SparklesIcon
   },
   {
-    title: 'Communauté',
+    title: 'Authenticité culturelle',
     description: 'Nous créons un environnement de soutien mutuel et d\'entraide.',
     icon: UserGroupIcon
+  },
+  {
+    title: 'Transmission & pédagogie',
+    description: 'Nous créons un environnement de soutien mutuel et d\'entraide.',
+    icon: UserCircleIcon
   }
 ]
 
