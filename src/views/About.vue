@@ -74,7 +74,7 @@
             >
             <div class="text-left">
               <div class="font-semibold">Grace KIKI</div>
-              <div class="text-gray-600 text-sm">experte en nutrition humaine</div>
+              <div class="text-gray-600 text-sm">Experte en Nutrition Humaine</div>
             </div>
           </div>
         </div>
@@ -86,26 +86,25 @@
 <script setup lang="ts">
 import { HeartIcon, UserGroupIcon, SparklesIcon, UserCircleIcon } from '@heroicons/vue/24/outline'
 
-
 const values = [
   {
     title: 'Santé & bien-être',
-    description: 'Nous accompagnons chaque personne avec empathie et sans jugement.',
+    description: 'Nous plaçons la santé physique et mentale au cœur de nos priorités, avec une approche globale et bienveillante.',
     icon: HeartIcon
   },
   {
     title: 'Plaisir sans culpabilité',
-    description: 'Notre équipe de professionnels formés vous garantit des conseils de qualité.',
+    description: 'Nous encourageons une relation saine avec l’alimentation, où le plaisir et l’équilibre ne sont jamais opposés.',
     icon: SparklesIcon
   },
   {
     title: 'Authenticité culturelle',
-    description: 'Nous créons un environnement de soutien mutuel et d\'entraide.',
+    description: 'Nous valorisons les traditions culinaires et les identités culturelles, sans les gommer au nom de normes universelles.',
     icon: UserGroupIcon
   },
   {
     title: 'Transmission & pédagogie',
-    description: 'Nous créons un environnement de soutien mutuel et d\'entraide.',
+    description: 'Nous partageons notre savoir avec clarté et passion, pour rendre chacun acteur de son propre bien-être.',
     icon: UserCircleIcon
   }
 ]
