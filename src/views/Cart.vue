@@ -124,13 +124,10 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
 import { ShoppingBagIcon, TrashIcon } from '@heroicons/vue/24/outline'
 import { useCartStore } from '../stores/cart'
 
 const cartStore = useCartStore()
-const shipping = computed(() => cartStore.totalPrice > 50 ? 0 : 4.90)
-const total = computed(() => cartStore.totalPrice + shipping.value)
 
 const updateQuantity = (productId: string, quantity: number) => {
   cartStore.updateQuantity(productId, quantity)
