@@ -1,3 +1,4 @@
+
 <template>
   <div class="min-h-screen bg-gray-50">
     <!-- Hero Section -->
@@ -17,7 +18,7 @@
           </div>
           <div>
             <img 
-              src="/public/photo.jpeg" 
+              src="/photo.jpeg" 
               alt="À propos de NutriVie"
               class="rounded-2xl shadow-xl w-full h-96 object-cover"
             >
@@ -68,7 +69,7 @@
           </p>
           <div class="flex items-center justify-center space-x-4">
             <img 
-              src="/public/photo.jpeg" 
+              src="/photo.jpeg" 
               alt="Grace KIKI"
               class="w-12 h-12 rounded-full object-cover"
             >

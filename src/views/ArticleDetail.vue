@@ -62,7 +62,7 @@
         <h3 class="font-title font-semibold text-xl mb-4">À propos de l'auteur</h3>
         <div class="flex items-start space-x-4">
           <img 
-            src="/public/photo.jpeg" 
+            src="/photo.jpeg" 
             alt="Merry Dubois"
             class="w-16 h-16 rounded-full object-cover"
           >

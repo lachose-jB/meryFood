@@ -75,12 +75,12 @@
             </div>
             <div class="flex justify-between">
               <span>Livraison</span>
-              <span>{{ shipping.toFixed(2) }}€</span>
+              <span class="italic text-gray-500">Détails via WhatsApp</span>
             </div>
             <div class="border-t pt-3">
               <div class="flex justify-between font-semibold text-lg">
                 <span>Total</span>
-                <span class="text-primary">{{ total.toFixed(2) }}€</span>
+                <span class="text-primary">{{ cartStore.totalPrice.toFixed(2) }}€</span>
               </div>
             </div>
           </div>
@@ -153,9 +153,8 @@ const orderViaWhatsApp = () => {
   
   message += `💰 *RÉSUMÉ:*\n`
   message += `Sous-total: ${cartStore.totalPrice.toFixed(2)}€\n`
-  message += `Livraison: ${shipping.value.toFixed(2)}€\n`
-  message += `*TOTAL: ${total.value.toFixed(2)}€*\n\n`
-  
+  message += `*TOTAL: ${cartStore.totalPrice.toFixed(2)}€*\n\n`
+  message += `🚚 Les détails de la livraison seront confirmés par WhatsApp.\n\n`
   message += `📝 Merci de confirmer cette commande et de m'indiquer:\n`
   message += `• Votre adresse de livraison\n`
   message += `• Votre mode de paiement préféré\n`
