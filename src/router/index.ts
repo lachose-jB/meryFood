@@ -22,7 +22,6 @@ const routes = [
   { path: '/shop', name: 'Shop', component: Shop },
   { path: '/product/:id', name: 'ProductDetail', component: ProductDetail, props: true },
   { path: '/cart', name: 'Cart', component: Cart },
-  { path: '/consultation', name: 'Consultation', component: Consultation },
   { path: '/about', name: 'About', component: About },
   { path: '/blog', name: 'Blog', component: Blog },
   { path: '/article/:title', name: 'ArticleDetail', component: ArticleDetail, props: true },

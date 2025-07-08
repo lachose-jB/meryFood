@@ -121,7 +121,6 @@ const mobileMenuOpen = ref(false)
 const navigation = [
   { name: 'Accueil', href: '/' },
   { name: 'Boutique', href: '/shop' },
-  { name: 'Consultation', href: '/consultation' },
   { name: 'À propos', href: '/about' },
   { name: 'Blog', href: '/blog' },
   { name: 'Contact', href: '/contact' }
