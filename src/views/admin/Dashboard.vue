@@ -85,11 +85,11 @@
         <div class="bg-white p-6 rounded-xl shadow-sm">
           <div class="flex items-center">
             <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
-              <CurrencyEuroIcon class="h-6 w-6 text-yellow-600" />
+              <TagIcon class="h-6 w-6 text-yellow-600" />
             </div>
             <div class="ml-4">
-              <p class="text-sm text-gray-600">Firebase</p>
-              <p class="text-2xl font-bold text-green-600">✓</p>
+              <p class="text-sm text-gray-600">Promotions</p>
+              <p class="text-2xl font-bold text-gray-900">{{ stats.promotions }}</p>
             </div>
           </div>
         </div>
@@ -149,6 +149,20 @@
             <h2 class="font-title font-semibold text-xl mb-6">Consultations</h2>
             <BookingsManager />
           </div>
+
+          <!-- Promotions Tab -->
+          <div v-if="activeTab === 'promotions'">
+            <div class="flex justify-between items-center mb-6">
+              <h2 class="font-title font-semibold text-xl">Gestion des promotions</h2>
+              <button 
+                @click="showPromotionForm = true"
+                class="btn-primary"
+              >
+                Ajouter une promotion
+              </button>
+            </div>
+            <PromotionsManager />
+          </div>
         </div>
       </div>
     </div>
@@ -164,6 +178,12 @@
       v-if="showArticleForm"
       @close="showArticleForm = false"
     />
+
+    <!-- Promotion Form Modal -->
+    <PromotionForm 
+      v-if="showPromotionForm"
+      @close="showPromotionForm = false"
+    />
   </div>
 </template>
 
@@ -174,40 +194,47 @@ import { useAuthStore } from '../../stores/auth'
 import { useProductStore } from '../../stores/products'
 import { useBlogStore } from '../../stores/blog'
 import { useFirebaseBookingStore } from '../../stores/firebaseBooking'
+import { usePromotionStore } from '../../stores/promotions'
 import { 
   ShoppingBagIcon, 
   DocumentTextIcon, 
   CalendarIcon, 
-  CurrencyEuroIcon,
+  TagIcon,
   ShieldCheckIcon,
   InformationCircleIcon
 } from '@heroicons/vue/24/outline'
 import ProductsManager from '../../components/admin/ProductsManager.vue'
 import ArticlesManager from '../../components/admin/ArticlesManager.vue'
 import BookingsManager from '../../components/admin/BookingsManager.vue'
+import PromotionsManager from '../../components/admin/PromotionsManager.vue'
 import ProductForm from '../../components/admin/ProductForm.vue'
 import ArticleForm from '../../components/admin/ArticleForm.vue'
+import PromotionForm from '../../components/admin/PromotionForm.vue'
 
 const router = useRouter()
 const authStore = useAuthStore()
 const productStore = useProductStore()
 const blogStore = useBlogStore()
 const bookingStore = useFirebaseBookingStore()
+const promotionStore = usePromotionStore()
 
 const activeTab = ref('products')
 const showProductForm = ref(false)
 const showArticleForm = ref(false)
+const showPromotionForm = ref(false)
 
 const tabs = [
   { id: 'products', name: 'Produits' },
   { id: 'articles', name: 'Articles' },
-  { id: 'bookings', name: 'Consultations' }
+  { id: 'bookings', name: 'Consultations' },
+  { id: 'promotions', name: 'Promotions' }
 ]
 
 const stats = computed(() => ({
   products: productStore.products.length,
   articles: blogStore.posts.length,
-  bookings: bookingStore.bookings.length
+  bookings: bookingStore.bookings.length,
+  promotions: promotionStore.promotions.length
 }))
 
 const logout = () => {
@@ -228,7 +255,8 @@ onMounted(async () => {
   await Promise.all([
     productStore.loadProducts(),
     blogStore.loadPosts(),
-    bookingStore.loadBookings()
+    bookingStore.loadBookings(),
+    promotionStore.loadPromotions()
   ])
   
   // Rafraîchir la session

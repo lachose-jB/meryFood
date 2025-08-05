@@ -26,7 +26,8 @@ const COLLECTIONS = {
   BLOG_POSTS: 'blog_posts',
   BOOKINGS: 'bookings',
   ORDERS: 'orders',
-  CONTACT_MESSAGES: 'contact_messages'
+  CONTACT_MESSAGES: 'contact_messages',
+  PROMOTIONS: 'promotions'
 } as const
 
 export const productService = {
@@ -603,6 +604,144 @@ export const uploadProductImage = async (file: File): Promise<string> => {
 export const uploadBlogImage = async (file: File): Promise<string> => {
   return uploadImage(file, 'blog', {
     maxSize: 3 * 1024 * 1024, // 3 MB
+    allowedTypes: ['image/jpeg', 'image/jpg', 'image/png', 'image/webp']
+  })
+}
+
+// Services pour les promotions
+import type { Promotion } from '../types'
+
+export const promotionService = {
+  async getAll(): Promise<Promotion[]> {
+    try {
+      const promotionsRef = collection(db, COLLECTIONS.PROMOTIONS)
+      const q = query(promotionsRef, orderBy('createdAt', 'desc'))
+      const snapshot = await getDocs(q)
+      
+      const promotions = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      })) as Promotion[]
+      
+      return promotions
+    } catch (error: any) {
+      if (error?.code === 'permission-denied') {
+        throw new Error('Accès refusé aux promotions. Vérifiez la configuration Firebase.')
+      }
+      
+      return []
+    }
+  },
+
+  async getActive(): Promise<Promotion[]> {
+    try {
+      const promotionsRef = collection(db, COLLECTIONS.PROMOTIONS)
+      const now = new Date().toISOString().split('T')[0]
+      const q = query(
+        promotionsRef,
+        where('isActive', '==', true),
+        where('validFrom', '<=', now),
+        where('validUntil', '>=', now),
+        orderBy('validFrom', 'desc')
+      )
+      const snapshot = await getDocs(q)
+      
+      const promotions = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      })) as Promotion[]
+      
+      return promotions
+    } catch (error: any) {
+      if (error?.code === 'permission-denied') {
+        throw new Error('Accès refusé aux promotions actives.')
+      }
+      
+      return []
+    }
+  },
+
+  async getById(id: string): Promise<Promotion | null> {
+    try {
+      const promotionRef = doc(db, COLLECTIONS.PROMOTIONS, id)
+      const snapshot = await getDoc(promotionRef)
+      
+      if (snapshot.exists()) {
+        const promotion = {
+          id: snapshot.id,
+          ...snapshot.data()
+        } as Promotion
+        return promotion
+      }
+      return null
+    } catch (error: any) {
+      if (error?.code === 'permission-denied') {
+        throw new Error('Accès refusé à la promotion.')
+      }
+      
+      return null
+    }
+  },
+
+  async add(promotion: Omit<Promotion, 'id'>): Promise<string | null> {
+    try {
+      const promotionsRef = collection(db, COLLECTIONS.PROMOTIONS)
+      
+      const promotionData = {
+        ...promotion,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp()
+      }
+      
+      const docRef = await addDoc(promotionsRef, promotionData)
+      
+      return docRef.id
+    } catch (error: any) {
+      if (error?.code === 'permission-denied') {
+        throw new Error('Authentification requise pour ajouter des promotions.')
+      }
+      
+      throw error
+    }
+  },
+
+  async update(id: string, updates: Partial<Promotion>): Promise<boolean> {
+    try {
+      const promotionRef = doc(db, COLLECTIONS.PROMOTIONS, id)
+      await updateDoc(promotionRef, {
+        ...updates,
+        updatedAt: serverTimestamp()
+      })
+      
+      return true
+    } catch (error: any) {
+      if (error?.code === 'permission-denied') {
+        throw new Error('Authentification requise pour modifier des promotions.')
+      }
+      
+      return false
+    }
+  },
+
+  async delete(id: string): Promise<boolean> {
+    try {
+      const promotionRef = doc(db, COLLECTIONS.PROMOTIONS, id)
+      await deleteDoc(promotionRef)
+      
+      return true
+    } catch (error: any) {
+      if (error?.code === 'permission-denied') {
+        throw new Error('Authentification requise pour supprimer des promotions.')
+      }
+      
+      return false
+    }
+  }
+}
+
+export const uploadPromotionImage = async (file: File): Promise<string> => {
+  return uploadImage(file, 'promotions', {
+    maxSize: 2 * 1024 * 1024, // 2 MB
     allowedTypes: ['image/jpeg', 'image/jpg', 'image/png', 'image/webp']
   })
 }

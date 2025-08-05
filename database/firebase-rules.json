@@ -26,6 +26,11 @@
     "contact_messages": {
       ".read": "auth != null",
       ".write": true
+    },
+    
+    "promotions": {
+      ".read": true,
+      ".write": "auth != null"
     }
   }
 }
