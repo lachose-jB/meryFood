@@ -28,8 +28,9 @@ export const usePromotionStore = defineStore('promotions', () => {
     try {
       activePromotions.value = await promotionService.getActive()
     } catch (err) {
-      error.value = 'Erreur lors du chargement des promotions actives'
-      console.error(err)
+      console.error('Erreur lors du chargement des promotions actives:', err)
+      // Ne pas faire planter l'application si les promotions ne sont pas accessibles
+      activePromotions.value = []
     }
   }
 
