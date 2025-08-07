@@ -1,5 +1,6 @@
 // Services Firebase avec Firestore et Storage
 import type { Product, BlogPost } from '../types'
+import type { Promotion } from '../types'
 import { db, storage } from '../config/firebase'
 import { 
   collection,
@@ -554,7 +555,7 @@ export const uploadImage = async (
       setTimeout(() => reject(new Error('Timeout: Upload trop long (30s)')), 30000)
     })
     
-    await Promise.race([uploadPromise, timeoutPromise]) // <-- Garde juste l'appel pour attendre l'upload
+    await Promise.race([uploadPromise, timeoutPromise])
     
     const downloadURL = await getDownloadURL(imageRef)
     
@@ -608,134 +609,56 @@ export const uploadBlogImage = async (file: File): Promise<string> => {
   })
 }
 
-// Services pour les promotions
-import type { Promotion } from '../types'
-
 export const promotionService = {
   async getAll(): Promise<Promotion[]> {
-    try {
-      const promotionsRef = collection(db, COLLECTIONS.PROMOTIONS)
-      const q = query(promotionsRef, orderBy('createdAt', 'desc'))
-      const snapshot = await getDocs(q)
-      
-      const promotions = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      })) as Promotion[]
-      
-      return promotions
-    } catch (error: any) {
-      if (error?.code === 'permission-denied') {
-        throw new Error('Accès refusé aux promotions. Vérifiez la configuration Firebase.')
-      }
-      
-      return []
-    }
+    const ref = collection(db, 'promotions')
+    const q = query(ref, orderBy('createdAt', 'desc'))
+    const snapshot = await getDocs(q)
+    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Promotion))
   },
 
   async getActive(): Promise<Promotion[]> {
-    try {
-      const promotionsRef = collection(db, COLLECTIONS.PROMOTIONS)
-      const now = new Date().toISOString().split('T')[0]
-      const q = query(
-        promotionsRef,
-        where('isActive', '==', true),
-        where('validFrom', '<=', now),
-        where('validUntil', '>=', now),
-        orderBy('validFrom', 'desc')
-      )
-      const snapshot = await getDocs(q)
-      
-      const promotions = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      })) as Promotion[]
-      
-      return promotions
-    } catch (error: any) {
-      if (error?.code === 'permission-denied') {
-        throw new Error('Accès refusé aux promotions actives.')
-      }
-      
-      return []
-    }
+    const now = new Date()
+    const ref = collection(db, 'promotions')
+    const q = query(
+      ref,
+      where('validUntil', '>=', now),
+      orderBy('validUntil', 'asc')
+    )
+    const snapshot = await getDocs(q)
+    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Promotion))
   },
 
   async getById(id: string): Promise<Promotion | null> {
-    try {
-      const promotionRef = doc(db, COLLECTIONS.PROMOTIONS, id)
-      const snapshot = await getDoc(promotionRef)
-      
-      if (snapshot.exists()) {
-        const promotion = {
-          id: snapshot.id,
-          ...snapshot.data()
-        } as Promotion
-        return promotion
-      }
-      return null
-    } catch (error: any) {
-      if (error?.code === 'permission-denied') {
-        throw new Error('Accès refusé à la promotion.')
-      }
-      
-      return null
-    }
+    const docRef = doc(db, 'promotions', id)
+    const snapshot = await getDoc(docRef)
+    if (!snapshot.exists()) return null
+    return { id: snapshot.id, ...snapshot.data() } as Promotion
   },
 
-  async add(promotion: Omit<Promotion, 'id'>): Promise<string | null> {
-    try {
-      const promotionsRef = collection(db, COLLECTIONS.PROMOTIONS)
-      
-      const promotionData = {
-        ...promotion,
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp()
-      }
-      
-      const docRef = await addDoc(promotionsRef, promotionData)
-      
-      return docRef.id
-    } catch (error: any) {
-      if (error?.code === 'permission-denied') {
-        throw new Error('Authentification requise pour ajouter des promotions.')
-      }
-      
-      throw error
-    }
+  async add(promotion: Omit<Promotion, 'id'>): Promise<string> {
+    const ref = collection(db, 'promotions')
+    const docRef = await addDoc(ref, {
+      ...promotion,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp()
+    })
+    return docRef.id
   },
 
   async update(id: string, updates: Partial<Promotion>): Promise<boolean> {
-    try {
-      const promotionRef = doc(db, COLLECTIONS.PROMOTIONS, id)
-      await updateDoc(promotionRef, {
-        ...updates,
-        updatedAt: serverTimestamp()
-      })
-      
-      return true
-    } catch (error: any) {
-      if (error?.code === 'permission-denied') {
-        throw new Error('Authentification requise pour modifier des promotions.')
-      }
-      
-      return false
-    }
+    const docRef = doc(db, 'promotions', id)
+    await updateDoc(docRef, {
+      ...updates,
+      updatedAt: serverTimestamp()
+    })
+    return true
   },
 
   async delete(id: string): Promise<boolean> {
-    try {
-      const promotionRef = doc(db, COLLECTIONS.PROMOTIONS, id)
-      await deleteDoc(promotionRef)
-      
-      return true
-    } catch (error: any) {
-      if (error?.code === 'permission-denied') {
-        throw new Error('Authentification requise pour supprimer des promotions.')
-      }
-      
-      return false
-    }
+    const docRef = doc(db, 'promotions', id)
+    await deleteDoc(docRef)
+    return true
   }
 }
 

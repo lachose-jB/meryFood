@@ -247,7 +247,11 @@ const handleSubmit = async () => {
     const promotionData = {
       title: form.value.title,
       description: form.value.description,
+<<<<<<< HEAD
       discountPercentage: form.value.discountPercentage,
+=======
+      discount: form.value.discountPercentage,  // <-- ici la clé correcte
+>>>>>>> 8b6ff2a (propomtion)
       validFrom: form.value.validFrom,
       validUntil: form.value.validUntil,
       promoCode: form.value.promoCode || undefined,
@@ -285,4 +289,8 @@ const handleSubmit = async () => {
     uploading.value = false
   }
 }
+<<<<<<< HEAD
+=======
+
+>>>>>>> 8b6ff2a (propomtion)
 </script>
