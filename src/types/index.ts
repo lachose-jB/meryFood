@@ -1,3 +1,5 @@
+import type { Timestamp } from 'firebase/firestore'
+
 export interface Product {
   id: string
   name: string
@@ -20,4 +22,18 @@ export interface BlogPost {
   date: string
   readTime: string
   tags: string[]
+}
+
+export interface Promotion {
+  id?: string
+  title: string
+  description: string
+  discount: number         // ici c’est un nombre, pas une variable
+  image?: string
+  promoCode?: string
+  validFrom?: string
+  validUntil: string
+  isActive: boolean
+  createdAt?: Timestamp
+  updatedAt?: Timestamp
 }

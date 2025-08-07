@@ -1,5 +1,6 @@
 // Services Firebase avec Firestore et Storage
 import type { Product, BlogPost } from '../types'
+import type { Promotion } from '../types'
 import { db, storage } from '../config/firebase'
 import { 
   collection,
@@ -553,7 +554,7 @@ export const uploadImage = async (
       setTimeout(() => reject(new Error('Timeout: Upload trop long (30s)')), 30000)
     })
     
-    await Promise.race([uploadPromise, timeoutPromise]) // <-- Garde juste l'appel pour attendre l'upload
+    await Promise.race([uploadPromise, timeoutPromise])
     
     const downloadURL = await getDownloadURL(imageRef)
     
@@ -603,6 +604,66 @@ export const uploadProductImage = async (file: File): Promise<string> => {
 export const uploadBlogImage = async (file: File): Promise<string> => {
   return uploadImage(file, 'blog', {
     maxSize: 3 * 1024 * 1024, // 3 MB
+    allowedTypes: ['image/jpeg', 'image/jpg', 'image/png', 'image/webp']
+  })
+}
+
+export const promotionService = {
+  async getAll(): Promise<Promotion[]> {
+    const ref = collection(db, 'promotions')
+    const q = query(ref, orderBy('createdAt', 'desc'))
+    const snapshot = await getDocs(q)
+    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Promotion))
+  },
+
+  async getActive(): Promise<Promotion[]> {
+    const now = new Date()
+    const ref = collection(db, 'promotions')
+    const q = query(
+      ref,
+      where('validUntil', '>=', now),
+      orderBy('validUntil', 'asc')
+    )
+    const snapshot = await getDocs(q)
+    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Promotion))
+  },
+
+  async getById(id: string): Promise<Promotion | null> {
+    const docRef = doc(db, 'promotions', id)
+    const snapshot = await getDoc(docRef)
+    if (!snapshot.exists()) return null
+    return { id: snapshot.id, ...snapshot.data() } as Promotion
+  },
+
+  async add(promotion: Omit<Promotion, 'id'>): Promise<string> {
+    const ref = collection(db, 'promotions')
+    const docRef = await addDoc(ref, {
+      ...promotion,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp()
+    })
+    return docRef.id
+  },
+
+  async update(id: string, updates: Partial<Promotion>): Promise<boolean> {
+    const docRef = doc(db, 'promotions', id)
+    await updateDoc(docRef, {
+      ...updates,
+      updatedAt: serverTimestamp()
+    })
+    return true
+  },
+
+  async delete(id: string): Promise<boolean> {
+    const docRef = doc(db, 'promotions', id)
+    await deleteDoc(docRef)
+    return true
+  }
+}
+
+export const uploadPromotionImage = async (file: File): Promise<string> => {
+  return uploadImage(file, 'promotions', {
+    maxSize: 2 * 1024 * 1024, // 2 MB
     allowedTypes: ['image/jpeg', 'image/jpg', 'image/png', 'image/webp']
   })
 }
