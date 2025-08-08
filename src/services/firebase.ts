@@ -526,74 +526,28 @@ export const validateImageFile = async (file: File, options: FileValidationOptio
   }
 }
 
-export const uploadImage = async (
-  file: File, 
-  folder: string = 'images',
-  validationOptions?: FileValidationOptions
-): Promise<string> => {
-  try {
+  export const uploadImage = async (
+    file: File, 
+    folder: string = 'images',
+    validationOptions?: FileValidationOptions
+  ): Promise<string> => {
+    // Valide le fichier
     await validateImageFile(file, validationOptions)
-    
+
+    // Crée une référence dans Storage avec un nom unique
     const timestamp = Date.now()
-    const randomString = Math.random().toString(36).substring(2, 8)
-    const fileExtension = file.name.split('.').pop()?.toLowerCase() || 'jpg'
-    const fileName = `${folder}_${timestamp}_${randomString}.${fileExtension}`
-    
-    const imageRef = storageRef(storage, `${folder}/${fileName}`)
-    
-    const metadata = {
-      contentType: file.type,
-      customMetadata: {
-        originalName: file.name,
-        uploadedAt: new Date().toISOString(),
-        size: file.size.toString()
-      }
-    }
-    
-    const uploadPromise = uploadBytes(imageRef, file, metadata)
-    const timeoutPromise = new Promise((_, reject) => {
-      setTimeout(() => reject(new Error('Timeout: Upload trop long (30s)')), 30000)
-    })
-    
-    await Promise.race([uploadPromise, timeoutPromise])
-    
-    const downloadURL = await getDownloadURL(imageRef)
-    
+    const fileName = `${folder}/${timestamp}_${file.name}`
+
+    const imgRef = storageRef(storage, fileName)
+
+    // Upload le fichier
+    await uploadBytes(imgRef, file)
+
+    // Récupère l'URL téléchargeable
+    const downloadURL = await getDownloadURL(imgRef)
+
     return downloadURL
-    
-  } catch (error: any) {
-    if (error?.code === 'storage/unauthorized') {
-      throw new Error('Authentification requise pour uploader des images')
-    }
-    
-    if (error?.code === 'storage/invalid-format') {
-      throw new Error('Format d\'image non supporté')
-    }
-    
-    if (error?.code === 'storage/quota-exceeded') {
-      throw new Error('Quota de stockage dépassé')
-    }
-    
-    if (error?.code === 'storage/invalid-checksum') {
-      throw new Error('Fichier corrompu lors de l\'upload')
-    }
-    
-    if (error?.code === 'storage/canceled') {
-      throw new Error('Upload annulé')
-    }
-    
-    if (error?.code === 'storage/unknown') {
-      throw new Error('Erreur inconnue lors de l\'upload')
-    }
-    
-    if (error.message.includes('trop volumineuse') || 
-        error.message.includes('non supporté')) {
-      throw error
-    }
-    
-    throw new Error('Erreur lors de l\'upload: ' + (error.message || 'Erreur inconnue'))
   }
-}
 
 export const uploadProductImage = async (file: File): Promise<string> => {
   return uploadImage(file, 'products', {
