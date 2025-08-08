@@ -1,5 +1,4 @@
 // Configuration Firebase avec Firestore et Storage
-import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 import { getAnalytics, Analytics } from "firebase/analytics";
 import { getAuth } from "firebase/auth";
