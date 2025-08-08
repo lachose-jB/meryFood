@@ -46,5 +46,5 @@ let analytics: Analytics | undefined = undefined;
 if (typeof window !== "undefined" && VITE_FIREBASE_MEASUREMENT_ID) {
   analytics = getAnalytics(app);
 }
-
+initializeApp(firebaseConfig)
 export { app, auth, db, analytics, storage };
