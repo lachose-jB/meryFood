@@ -28,12 +28,17 @@ export interface Promotion {
   id?: string
   title: string
   description: string
-  discount: number         // ici c’est un nombre, pas une variable
-  image?: string
-  promoCode?: string
-  validFrom?: string
-  validUntil: string
+  discount: Number  
+  validFrom: string | Timestamp
+  validUntil: string | Timestamp
+  promoCode?: string | null
+  image: string
   isActive: boolean
   createdAt?: Timestamp
   updatedAt?: Timestamp
+}
+
+export type PromotionCreate = Omit<Promotion, 'id' | 'createdAt' | 'updatedAt'> & {
+  validFrom: string | Timestamp
+  validUntil: string | Timestamp
 }

@@ -95,24 +95,20 @@
             class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-primary focus:border-primary"
           >
           
-          <!-- Informations sur les contraintes -->
           <div class="mt-2 text-xs text-gray-500">
             <p>• Formats acceptés: JPEG, PNG, WebP</p>
             <p>• Taille maximum: 2 Mo</p>
           </div>
           
-          <!-- État de l'upload -->
           <div v-if="uploading" class="text-sm text-blue-600 mt-2 flex items-center">
             <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-primary mr-2"></div>
             Upload en cours...
           </div>
           
-          <!-- Validation des erreurs -->
           <div v-if="imageError" class="text-sm text-red-600 mt-2">
             {{ imageError }}
           </div>
           
-          <!-- Aperçu de l'image -->
           <div v-if="imagePreview" class="mt-4">
             <img :src="imagePreview" alt="Aperçu" class="rounded-lg w-full max-h-64 object-contain border" />
           </div>
@@ -145,6 +141,7 @@
           <button 
             type="submit"
             :disabled="loading || uploading || !isFormValid"
+            :class="{'opacity-50 cursor-not-allowed': loading || uploading || !isFormValid}"
             class="btn-primary"
           >
             {{ loading ? 'Ajout en cours...' : 'Ajouter la promotion' }}
@@ -158,6 +155,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { uploadPromotionImage } from '../../services/firebase'
+import { Timestamp } from 'firebase/firestore'
 import { usePromotionStore } from '../../stores/promotions'
 
 const emit = defineEmits(['close', 'save'])
@@ -183,49 +181,69 @@ let imageFile: File | null = null
 const success = ref(false)
 
 const isFormValid = computed(() => {
-  return form.value.title && 
-         form.value.description && 
-         form.value.discountPercentage > 0 && 
-         form.value.validFrom && 
-         form.value.validUntil && 
-         imageFile !== null
+  error.value = '' // reset avant validation
+
+  if (
+    !form.value.title ||
+    !form.value.description ||
+    form.value.discountPercentage <= 0 ||
+    !form.value.validFrom ||
+    !form.value.validUntil ||
+    !imageFile
+  ) {
+    return false
+  }
+
+  const startDate = new Date(form.value.validFrom)
+  const endDate = new Date(form.value.validUntil)
+  if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+    error.value = 'Dates invalides'
+    return false
+  }
+
+  if (endDate <= startDate) {
+    error.value = "La date de fin doit être après la date de début"
+    return false
+  }
+
+  return true
 })
 
 const handleImageUpload = async (event: Event) => {
   const target = event.target as HTMLInputElement
   imageError.value = ''
-  
+
+  if (imagePreview.value) {
+    URL.revokeObjectURL(imagePreview.value)
+    imagePreview.value = null
+  }
+
   if (target.files && target.files[0]) {
     const file = target.files[0]
-    
+
     try {
-      // Validation simple côté client
       if (file.size > 2 * 1024 * 1024) {
         throw new Error('Image trop volumineuse (max 2 Mo)')
       }
-      
+
       const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp']
       if (!validTypes.includes(file.type)) {
-        throw new Error('Format d\'image non supporté (JPEG, PNG, WebP uniquement)')
+        throw new Error('Format non supporté (JPEG, PNG, WebP uniquement)')
       }
-      
+
       imageFile = file
-      const previewUrl = URL.createObjectURL(imageFile)
-      imagePreview.value = previewUrl
-      
-      
+      imagePreview.value = URL.createObjectURL(file)
     } catch (err: any) {
       imageError.value = err.message
       imageFile = null
-      imagePreview.value = null
-      target.value = '' // Reset input
+      target.value = ''
     }
   }
 }
 
 const handleSubmit = async () => {
   if (!isFormValid.value) {
-    error.value = 'Veuillez remplir tous les champs obligatoires'
+    error.value = error.value || 'Veuillez remplir tous les champs obligatoires'
     return
   }
 
@@ -234,63 +252,75 @@ const handleSubmit = async () => {
   success.value = false
 
   try {
-    let imageUrl = ''
+    if (!imageFile) throw new Error('Aucune image sélectionnée')
 
-    if (imageFile) {
-      uploading.value = true
+    uploading.value = true
+    const imageUrl = await uploadPromotionImage(imageFile)
+    uploading.value = false
 
-      imageUrl = await uploadPromotionImage(imageFile)
+    // Convertir les dates du formulaire en Timestamp Firestore
+    const validFromDate = new Date(form.value.validFrom)
+    const validUntilDate = new Date(form.value.validUntil)
 
-      uploading.value = false
+    if (isNaN(validFromDate.getTime()) || isNaN(validUntilDate.getTime())) {
+      throw new Error('Dates invalides')
     }
+
+    const validFrom = Timestamp.fromDate(validFromDate)
+    const validUntil = Timestamp.fromDate(validUntilDate)
 
     const promotionData = {
       title: form.value.title,
       description: form.value.description,
-<<<<<<< HEAD
-      discountPercentage: form.value.discountPercentage,
-=======
-      discount: form.value.discountPercentage,  // <-- ici la clé correcte
->>>>>>> 8b6ff2a (propomtion)
-      validFrom: form.value.validFrom,
-      validUntil: form.value.validUntil,
-      promoCode: form.value.promoCode || undefined,
+      discount: Number(form.value.discountPercentage),
+      validFrom,
+      validUntil,
+      promoCode: form.value.promoCode || null,
       image: imageUrl,
-      isActive: form.value.isActive
+      isActive: form.value.isActive,
+      createdAt: Timestamp.now()
     }
 
     const added = await promotionStore.addPromotion(promotionData)
-
-    if (added) {
-      emit('save', promotionData)
-      success.value = true
-
-      // Reset form
-      form.value = {
-        title: '',
-        description: '',
-        discountPercentage: 0,
-        validFrom: '',
-        validUntil: '',
-        promoCode: '',
-        image: '',
-        isActive: true
-      }
-      imageFile = null
-      imagePreview.value = null
-      imageError.value = ''
-    } else {
-      error.value = "Erreur lors de l'ajout de la promotion"
+    if (!added) {
+      throw new Error("Échec de l'ajout de la promotion")
     }
+
+    emit('save', promotionData)
+    success.value = true
+    resetForm()
+
   } catch (e: any) {
-    error.value = e.message || "Erreur lors de l'ajout de la promotion"
+    console.error("Erreur:", e)
+    error.value = e.message || "Erreur lors de l'enregistrement"
+    cleanImagePreview()
   } finally {
     loading.value = false
     uploading.value = false
   }
 }
-<<<<<<< HEAD
-=======
 
->>>>>>> 8b6ff2a (propomtion)
+const resetForm = () => {
+  form.value = {
+    title: '',
+    description: '',
+    discountPercentage: 0,
+    validFrom: '',
+    validUntil: '',
+    promoCode: '',
+    image: '',
+    isActive: true
+  }
+  error.value = ''
+  imageError.value = ''
+  cleanImagePreview()
+}
+
+const cleanImagePreview = () => {
+  if (imagePreview.value) {
+    URL.revokeObjectURL(imagePreview.value)
+    imagePreview.value = null
+  }
+  imageFile = null
+}
 </script>

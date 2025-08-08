@@ -83,7 +83,7 @@
               >
               <div class="absolute top-4 right-4">
                 <span class="bg-red-500 text-white px-3 py-1 rounded-full text-sm font-bold">
-                  -{{ promotion.discountPercentage }}%
+                  -{{ promotion.discount }}% <!-- Changé de discountPercentage -->
                 </span>
               </div>
               <div v-if="promotion.promoCode" class="absolute bottom-4 left-4">
@@ -100,7 +100,7 @@
                 {{ promotion.description }}
               </p>
               <div class="flex items-center justify-between text-sm text-gray-500 mb-4">
-                <span>Valable jusqu'au {{ formatPromotionDate(promotion.validUntil) }}</span>
+                <span>Valable jusqu'au {{ formatFirebaseDate(promotion.validUntil) }}</span>
               </div>
               <div class="flex space-x-2">
                 <router-link to="/shop" class="btn-primary flex-1 text-center">
@@ -251,6 +251,7 @@ import { useProductStore } from '../stores/products'
 import { useCartStore } from '../stores/cart'
 import { usePromotionStore } from '../stores/promotions'
 import type { Product } from '../types'
+import { formatFirebaseDate } from '../utils/dateUtils'
 
 const productStore = useProductStore()
 const cartStore = useCartStore()

@@ -60,8 +60,8 @@
                 </span>
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                <div>Du {{ promotion.validFrom ? formatDate(promotion.validFrom) : 'Date inconnue' }}</div>
-                <div>Au {{ promotion.validUntil ? formatDate(promotion.validUntil) : 'Date inconnue' }}</div>
+                <div>Du {{ promotion.validFrom ? formatFirebaseDate(promotion.validFrom) : 'Date inconnue' }}</div>
+                <div>Au {{ promotion.validUntil ? formatFirebaseDate(promotion.validUntil) : 'Date inconnue' }}</div>
               </td>
               <td class="px-6 py-4 whitespace-nowrap">
                 <span :class="getStatusClass(promotion)">
@@ -103,102 +103,99 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue'
-import { TagIcon } from '@heroicons/vue/24/outline'
-import { usePromotionStore } from '../../stores/promotions'
-import type { Promotion } from '../../types'
+  import { onMounted } from 'vue'
+  import { TagIcon } from '@heroicons/vue/24/outline'
+  import { usePromotionStore } from '../../stores/promotions'
+  import type { Promotion } from '../../types'
+  import { convertToDate, formatFirebaseDate } from '../../utils/dateUtils'
 
-const promotionStore = usePromotionStore()
+  const promotionStore = usePromotionStore()
 
-const formatDate = (dateString: string) => {
-  const date = new Date(dateString)
-  return date.toLocaleDateString('fr-FR', {
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric'
-  })
-}
+  // Pas de variable globale validFrom/validUntil hors contexte, ça crée des erreurs.
+  // Il faut convertir à la volée dans les fonctions ou composants.
 
-const getStatusClass = (promotion: Promotion) => {
-  const now = new Date()
+  // Utilise convertToDate dans getStatusClass
+  const getStatusClass = (promotion: Promotion) => {
+    const now = new Date()
 
-  if (!promotion.validFrom || !promotion.validUntil) {
-    return 'px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800'
+    if (!promotion.validFrom || !promotion.validUntil) {
+      return 'px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800'
+    }
+
+    const validFrom = convertToDate(promotion.validFrom)
+    const validUntil = convertToDate(promotion.validUntil)
+
+    if (isNaN(validFrom.getTime()) || isNaN(validUntil.getTime())) {
+      return 'px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800'
+    }
+
+    if (!promotion.isActive) {
+      return 'px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800'
+    }
+    
+    if (now < validFrom) {
+      return 'px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800'
+    }
+    
+    if (now > validUntil) {
+      return 'px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800'
+    }
+    
+    return 'px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800'
   }
 
-  const validFrom = new Date(promotion.validFrom)
-  const validUntil = new Date(promotion.validUntil)
+  const getStatusLabel = (promotion: Promotion) => {
+    const now = new Date()
 
-  if (isNaN(validFrom.getTime()) || isNaN(validUntil.getTime())) {
-    return 'px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800'
+    if (!promotion.validFrom || !promotion.validUntil) {
+      return 'Inactive'
+    }
+
+    const validFrom = convertToDate(promotion.validFrom)
+    const validUntil = convertToDate(promotion.validUntil)
+
+    if (isNaN(validFrom.getTime()) || isNaN(validUntil.getTime())) {
+      return 'Inactive'
+    }
+
+    if (!promotion.isActive) {
+      return 'Inactive'
+    }
+    
+    if (now < validFrom) {
+      return 'Programmée'
+    }
+    
+    if (now > validUntil) {
+      return 'Expirée'
+    }
+    
+    return 'Active'
   }
 
-  if (!promotion.isActive) {
-    return 'px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800'
-  }
-  
-  if (now < validFrom) {
-    return 'px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800'
-  }
-  
-  if (now > validUntil) {
-    return 'px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800'
-  }
-  
-  return 'px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800'
-}
 
+  // Supprime les appels en dehors de contexte
+  // Laisse convertToDate dans les boucles ou setup des composants quand tu as un promotion
 
-const getStatusLabel = (promotion: Promotion) => {
-  const now = new Date()
-
-  // Si validFrom ou validUntil manquent, on considère la promo comme inactive
-  if (!promotion.validFrom || !promotion.validUntil) {
-    return 'Inactive'
-  }
-
-  const validFrom = new Date(promotion.validFrom)
-  const validUntil = new Date(promotion.validUntil)
-
-  // On vérifie si les dates sont valides (not a NaN)
-  if (isNaN(validFrom.getTime()) || isNaN(validUntil.getTime())) {
-    return 'Inactive'
-  }
-
-  if (!promotion.isActive) {
-    return 'Inactive'
-  }
-  
-  if (now < validFrom) {
-    return 'Programmée'
-  }
-  
-  if (now > validUntil) {
-    return 'Expirée'
-  }
-  
-  return 'Active'
-}
-
-
-const togglePromotion = async (promotion: Promotion) => {
-  const success = await promotionStore.togglePromotion(promotion.id!, !promotion.isActive)
-  if (!success) {
-    alert('Erreur lors de la modification de la promotion')
-  }
-}
-
-const deletePromotion = async (id: string) => {
-  if (confirm('Êtes-vous sûr de vouloir supprimer cette promotion ?')) {
-    const success = await promotionStore.deletePromotion(id)
+  const togglePromotion = async (promotion: Promotion) => {
+    const success = await promotionStore.togglePromotion(promotion.id!, !promotion.isActive)
     if (!success) {
-      alert('Erreur lors de la suppression de la promotion')
+      alert('Erreur lors de la modification de la promotion')
     }
   }
-}
 
-onMounted(() => {
-  promotionStore.loadPromotions()
-})
+  const deletePromotion = async (id: string) => {
+    if (confirm('Êtes-vous sûr de vouloir supprimer cette promotion ?')) {
+      const success = await promotionStore.deletePromotion(id)
+      if (!success) {
+        alert('Erreur lors de la suppression de la promotion')
+      }
+    }
+  }
+
+  onMounted(() => {
+    promotionStore.loadPromotions()
+  })
 </script>
+
 >>>>>>> 8b6ff2a (propomtion)

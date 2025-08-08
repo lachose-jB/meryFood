@@ -1,7 +1,13 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
+import { Timestamp } from 'firebase/firestore'
 import { promotionService } from '../services/firebase'
 import type { Promotion } from '../types'
+
+type PromotionCreate = Omit<Promotion, 'id' | 'createdAt'> & {
+  validFrom: string | Timestamp
+  validUntil: string | Timestamp
+}
 
 export const usePromotionStore = defineStore('promotions', () => {
   const promotions = ref<Promotion[]>([])
@@ -9,88 +15,154 @@ export const usePromotionStore = defineStore('promotions', () => {
   const loading = ref(false)
   const error = ref<string | null>(null)
 
+  // Convertit une date en Timestamp Firebase
+  const toFirebaseTimestamp = (date: string | Timestamp): Timestamp => {
+    return date instanceof Timestamp ? date : Timestamp.fromDate(new Date(date))
+  }
+
   // Charger toutes les promotions
-  const loadPromotions = async () => {
+  const loadPromotions = async (forceReload = false): Promise<void> => {
+    if (promotions.value.length > 0 && !forceReload) return
+    
     loading.value = true
     error.value = null
     try {
       promotions.value = await promotionService.getAll()
     } catch (err) {
       error.value = 'Erreur lors du chargement des promotions'
-      console.error(err)
+      console.error('loadPromotions error:', err)
     } finally {
       loading.value = false
     }
   }
 
   // Charger les promotions actives
-  const loadActivePromotions = async () => {
+  const loadActivePromotions = async (forceReload = false): Promise<void> => {
+    if (activePromotions.value.length > 0 && !forceReload) return
+
+    loading.value = true
+    error.value = null
     try {
       activePromotions.value = await promotionService.getActive()
     } catch (err) {
-      console.error('Erreur lors du chargement des promotions actives:', err)
-      // Ne pas faire planter l'application si les promotions ne sont pas accessibles
+      error.value = 'Erreur lors du chargement des promotions actives'
+      console.error('loadActivePromotions error:', err)
       activePromotions.value = []
+    } finally {
+      loading.value = false
     }
   }
 
-  // Charger une promotion par ID
+  // Obtenir une promotion par ID
   const getPromotionById = async (id: string): Promise<Promotion | null> => {
+    const cachedPromotion = promotions.value.find(p => p.id === id)
+    if (cachedPromotion) return cachedPromotion
+
     try {
       return await promotionService.getById(id)
     } catch (err) {
-      error.value = 'Erreur lors du chargement de la promotion'
-      console.error(err)
+      error.value = `Erreur lors de la récupération de la promotion ${id}`
+      console.error(`getPromotionById error for ${id}:`, err)
       return null
     }
   }
 
-  // Ajouter une promotion (admin)
-  const addPromotion = async (promotion: Omit<Promotion, 'id'>): Promise<boolean> => {
+  // Ajouter une nouvelle promotion
+  const addPromotion = async (promotionData: PromotionCreate): Promise<string | null> => {
+    loading.value = true
+    error.value = null
+    
     try {
-      const id = await promotionService.add(promotion)
-      if (id) {
-        await loadPromotions() // Recharger la liste
-        await loadActivePromotions() // Recharger les promotions actives
-        return true
+      const promotionWithTimestamps = {
+        ...promotionData,
+        discount: promotionData.discount, // Assure la cohérence avec l'interface
+        validFrom: toFirebaseTimestamp(promotionData.validFrom),
+        validUntil: toFirebaseTimestamp(promotionData.validUntil),
+        createdAt: Timestamp.now()
       }
-      return false
+
+      const newPromotionId = await promotionService.add(promotionWithTimestamps)
+      
+      if (newPromotionId) {
+        await Promise.all([
+          loadPromotions(true),
+          loadActivePromotions(true)
+        ])
+      }
+      
+      return newPromotionId
     } catch (err) {
-      error.value = 'Erreur lors de l\'ajout de la promotion'
-      console.error(err)
-      return false
+      error.value = 'Erreur lors de la création de la promotion'
+      console.error('addPromotion error:', err)
+      return null
+    } finally {
+      loading.value = false
     }
   }
 
-  // Mettre à jour une promotion (admin)
-  const updatePromotion = async (id: string, updates: Partial<Promotion>): Promise<boolean> => {
+  // Mettre à jour une promotion existante
+  const updatePromotion = async (
+    id: string, 
+    updates: Partial<Promotion>
+  ): Promise<boolean> => {
+    loading.value = true
+    error.value = null
+    
     try {
-      const success = await promotionService.update(id, updates)
-      if (success) {
-        await loadPromotions() // Recharger la liste
-        await loadActivePromotions() // Recharger les promotions actives
+      // Convertit les dates si elles sont présentes dans les updates
+      const processedUpdates = { ...updates }
+      if (updates.validFrom) {
+        processedUpdates.validFrom = toFirebaseTimestamp(updates.validFrom)
       }
+      if (updates.validUntil) {
+        processedUpdates.validUntil = toFirebaseTimestamp(updates.validUntil)
+      }
+
+      const success = await promotionService.update(id, processedUpdates)
+      
+      if (success) {
+        // Mise à jour du cache local
+        const index = promotions.value.findIndex(p => p.id === id)
+        if (index !== -1) {
+          promotions.value[index] = { ...promotions.value[index], ...processedUpdates }
+        }
+        
+        // Rechargement si nécessaire
+        if (updates.isActive !== undefined || updates.validFrom || updates.validUntil) {
+          await loadActivePromotions(true)
+        }
+      }
+      
       return success
     } catch (err) {
-      error.value = 'Erreur lors de la mise à jour de la promotion'
-      console.error(err)
+      error.value = `Erreur lors de la mise à jour de la promotion ${id}`
+      console.error(`updatePromotion error for ${id}:`, err)
       return false
+    } finally {
+      loading.value = false
     }
   }
 
-  // Supprimer une promotion (admin)
+  // Supprimer une promotion
   const deletePromotion = async (id: string): Promise<boolean> => {
+    loading.value = true
+    error.value = null
+    
     try {
       const success = await promotionService.delete(id)
+      
       if (success) {
-        await loadPromotions() // Recharger la liste
-        await loadActivePromotions() // Recharger les promotions actives
+        promotions.value = promotions.value.filter(p => p.id !== id)
+        activePromotions.value = activePromotions.value.filter(p => p.id !== id)
       }
+      
       return success
     } catch (err) {
-      error.value = 'Erreur lors de la suppression de la promotion'
-      console.error(err)
+      error.value = `Erreur lors de la suppression de la promotion ${id}`
+      console.error(`deletePromotion error for ${id}:`, err)
       return false
+    } finally {
+      loading.value = false
     }
   }
 
@@ -100,10 +172,13 @@ export const usePromotionStore = defineStore('promotions', () => {
   }
 
   return {
+    // State
     promotions,
     activePromotions,
     loading,
     error,
+    
+    // Actions
     loadPromotions,
     loadActivePromotions,
     getPromotionById,
