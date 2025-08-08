@@ -17,9 +17,10 @@ const {
   VITE_FIREBASE_MEASUREMENT_ID,
 } = import.meta.env;
 
-// Validation rapide (optionnelle) — tu peux adapter pour throw ou logger plus proprement
+// Validation rapide
 if (!VITE_FIREBASE_API_KEY || !VITE_FIREBASE_AUTH_DOMAIN || !VITE_FIREBASE_PROJECT_ID) {
-  console.warn('⚠️ Certaines variables Firebase semblent manquer dans .env !');
+  console.error('⚠️ Certaines variables Firebase semblent manquer dans .env !');
+  throw new Error('Firebase configuration is incomplete. Check your environment variables.');
 }
 
 const firebaseConfig = {
@@ -33,7 +34,7 @@ const firebaseConfig = {
   measurementId: VITE_FIREBASE_MEASUREMENT_ID,
 };
 
-// Initialisation de l'app Firebase
+// Initialisation de l'app Firebase (une seule fois)
 const app = initializeApp(firebaseConfig);
 
 // Initialisation des services Firebase
@@ -41,10 +42,10 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 const storage = getStorage(app);
 
-// Initialisation de l'analytics uniquement côté client (navigateur)
+// Initialisation de l'analytics uniquement côté client
 let analytics: Analytics | undefined = undefined;
 if (typeof window !== "undefined" && VITE_FIREBASE_MEASUREMENT_ID) {
   analytics = getAnalytics(app);
 }
-initializeApp(firebaseConfig)
+
 export { app, auth, db, analytics, storage };
