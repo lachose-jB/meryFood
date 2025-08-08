@@ -5,7 +5,7 @@ import { getAnalytics, Analytics } from "firebase/analytics";
 import { getAuth } from "firebase/auth";
 import { getStorage } from "firebase/storage";
 
-// On force le typage des variables d'env pour s'assurer qu'elles sont bien là
+// Typage et extraction des variables d'env
 const {
   VITE_FIREBASE_API_KEY,
   VITE_FIREBASE_AUTH_DOMAIN,
@@ -17,11 +17,20 @@ const {
   VITE_FIREBASE_MEASUREMENT_ID,
 } = import.meta.env;
 
-// Validation rapide
-if (!VITE_FIREBASE_API_KEY || !VITE_FIREBASE_AUTH_DOMAIN || !VITE_FIREBASE_PROJECT_ID) {
-  console.error('⚠️ Certaines variables Firebase semblent manquer dans .env !');
-  throw new Error('Firebase configuration is incomplete. Check your environment variables.');
+// Fonction de validation stricte des variables essentielles
+function validateEnv() {
+  const requiredVars = [
+    "VITE_FIREBASE_API_KEY",
+    "VITE_FIREBASE_AUTH_DOMAIN",
+    "VITE_FIREBASE_PROJECT_ID",
+  ];
+  const missingVars = requiredVars.filter((v) => !(import.meta.env[v]));
+  if (missingVars.length) {
+    console.error(`❌ Variables d'environnement Firebase manquantes : ${missingVars.join(", ")}`);
+    throw new Error("Configuration Firebase invalide : variables manquantes");
+  }
 }
+validateEnv();
 
 const firebaseConfig = {
   apiKey: VITE_FIREBASE_API_KEY,
@@ -34,7 +43,7 @@ const firebaseConfig = {
   measurementId: VITE_FIREBASE_MEASUREMENT_ID,
 };
 
-// Initialisation de l'app Firebase (une seule fois)
+// Initialisation de l'app Firebase (unique)
 const app = initializeApp(firebaseConfig);
 
 // Initialisation des services Firebase
@@ -42,7 +51,7 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 const storage = getStorage(app);
 
-// Initialisation de l'analytics uniquement côté client
+// Initialisation conditionnelle d'Analytics côté client uniquement
 let analytics: Analytics | undefined = undefined;
 if (typeof window !== "undefined" && VITE_FIREBASE_MEASUREMENT_ID) {
   analytics = getAnalytics(app);
