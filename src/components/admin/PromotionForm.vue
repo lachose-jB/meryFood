@@ -20,9 +20,11 @@
             v-model="form.title"
             type="text" 
             required
+            minlength="5"
             class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-primary focus:border-primary"
             placeholder="Ex: Offre spéciale été"
           >
+          <div class="mt-1 text-xs text-gray-500">Minimum 5 caractères</div>
         </div>
 
         <!-- Description -->
@@ -32,9 +34,11 @@
             v-model="form.description"
             rows="3"
             required
+            minlength="10"
             class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-primary focus:border-primary"
             placeholder="Description de la promotion"
           ></textarea>
+          <div class="mt-1 text-xs text-gray-500">Minimum 10 caractères</div>
         </div>
 
         <!-- Pourcentage de réduction -->
@@ -49,6 +53,7 @@
             class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-primary focus:border-primary"
             placeholder="Ex: 20"
           >
+          <div class="mt-1 text-xs text-gray-500">Minimum 1% requis</div>
         </div>
 
         <!-- Dates de validité -->
@@ -87,6 +92,9 @@
         <!-- Image -->
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-2">Image de la promotion *</label>
+          <div class="mb-2 text-sm text-gray-600">
+            Veuillez sélectionner une image illustrant la promotion. Elle sera affichée sur le site et doit être attractive pour les clients.
+          </div>
           <input
             type="file"
             accept="image/jpeg,image/jpg,image/png,image/webp"
@@ -94,23 +102,20 @@
             required
             class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-primary focus:border-primary"
           >
-          
           <div class="mt-2 text-xs text-gray-500">
             <p>• Formats acceptés: JPEG, PNG, WebP</p>
             <p>• Taille maximum: 2 Mo</p>
           </div>
-          
           <div v-if="uploading" class="text-sm text-blue-600 mt-2 flex items-center">
             <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-primary mr-2"></div>
             Upload en cours...
           </div>
-          
           <div v-if="imageError" class="text-sm text-red-600 mt-2">
             {{ imageError }}
           </div>
-          
-          <div v-if="imagePreview" class="mt-4">
-            <img :src="imagePreview" alt="Aperçu" class="rounded-lg w-full max-h-64 object-contain border" />
+          <div v-if="imagePreview" class="mt-4 flex flex-col items-center">
+            <img :src="imagePreview" alt="Aperçu de l'image sélectionnée" class="rounded-lg w-full max-h-64 object-contain border mb-2" />
+            <span class="text-xs text-gray-500">Aperçu de l'image sélectionnée</span>
           </div>
         </div>
 
