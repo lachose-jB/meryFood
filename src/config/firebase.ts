@@ -5,8 +5,7 @@ import { getAnalytics, Analytics } from "firebase/analytics";
 import { getAuth } from "firebase/auth";
 import { getStorage } from "firebase/storage";
 
-
-// Typage et extraction des variables d'env
+// Extraction des variables d'env
 const {
   VITE_FIREBASE_API_KEY,
   VITE_FIREBASE_AUTH_DOMAIN,
@@ -30,22 +29,21 @@ console.log("🔍 Variables Firebase chargées depuis .env :", {
   measurementId: VITE_FIREBASE_MEASUREMENT_ID,
 });
 
-// Fonction de validation stricte des variables essentielles
+// Validation des variables d'environnement (warning seulement)
 function validateEnv() {
   const requiredVars = [
-  "VITE_FIREBASE_API_KEY",
-  "VITE_FIREBASE_AUTH_DOMAIN",
-  "VITE_FIREBASE_DATABASE_URL",
-  "VITE_FIREBASE_PROJECT_ID",
-  "VITE_FIREBASE_STORAGE_BUCKET",
-  "VITE_FIREBASE_MESSAGING_SENDER_ID",
-  "VITE_FIREBASE_APP_ID",
-  "VITE_FIREBASE_MEASUREMENT_ID",
-];
+    "VITE_FIREBASE_API_KEY",
+    "VITE_FIREBASE_AUTH_DOMAIN",
+    "VITE_FIREBASE_DATABASE_URL",
+    "VITE_FIREBASE_PROJECT_ID",
+    "VITE_FIREBASE_STORAGE_BUCKET",
+    "VITE_FIREBASE_MESSAGING_SENDER_ID",
+    "VITE_FIREBASE_APP_ID",
+    "VITE_FIREBASE_MEASUREMENT_ID",
+  ];
   const missingVars = requiredVars.filter((v) => !(import.meta.env[v]));
   if (missingVars.length) {
-    console.error(`❌ Variables d'environnement Firebase manquantes : ${missingVars.join(", ")}`);
-    throw new Error("Configuration Firebase invalide : variables manquantes");
+    console.warn(`⚠️ Variables d'environnement Firebase manquantes : ${missingVars.join(", ")}`);
   }
 }
 validateEnv();
@@ -60,12 +58,6 @@ const firebaseConfig = {
   appId: VITE_FIREBASE_APP_ID,
   measurementId: VITE_FIREBASE_MEASUREMENT_ID,
 };
-
-console.log("🔎 Variables Firebase en prod :", {
-  apiKeySet: Boolean(import.meta.env.VITE_FIREBASE_API_KEY),
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-});
 
 // Initialisation de l'app Firebase (unique)
 const app = initializeApp(firebaseConfig);
