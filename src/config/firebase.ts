@@ -17,6 +17,18 @@ const {
   VITE_FIREBASE_MEASUREMENT_ID,
 } = import.meta.env;
 
+// Log safe pour vérifier la récupération des variables d'env (sans afficher les secrets)
+console.log("🔍 Variables Firebase chargées depuis .env :", {
+  apiKeySet: Boolean(VITE_FIREBASE_API_KEY),
+  authDomain: VITE_FIREBASE_AUTH_DOMAIN,
+  databaseURL: VITE_FIREBASE_DATABASE_URL,
+  projectId: VITE_FIREBASE_PROJECT_ID,
+  storageBucket: VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: VITE_FIREBASE_APP_ID,
+  measurementId: VITE_FIREBASE_MEASUREMENT_ID,
+});
+
 // Fonction de validation stricte des variables essentielles
 function validateEnv() {
   const requiredVars = [
