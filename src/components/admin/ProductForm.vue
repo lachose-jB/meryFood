@@ -13,7 +13,7 @@
       </div>
 
       <form v-else @submit.prevent="handleSubmit" class="p-6 space-y-6">
-        <!-- Nom -->
+       <!-- Nom -->
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-2">Nom du produit *</label>
           <input 
@@ -23,6 +23,7 @@
             class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-primary focus:border-primary"
             placeholder="Nom du produit"
           >
+          <p class="mt-1 text-xs text-gray-500">⚠ Minimum 3 caractères</p>
         </div>
 
         <!-- Description -->
@@ -35,38 +36,42 @@
             class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-primary focus:border-primary"
             placeholder="Description du produit"
           ></textarea>
+          <p class="mt-1 text-xs text-gray-500">⚠ Minimum 10 caractères</p>
         </div>
 
-        <!-- Prix + Catégorie -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Prix *</label>
-            <input 
-              v-model.number="form.price"
-              type="number" 
-              step="0.01"
-              required
-              class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-primary focus:border-primary"
-              placeholder="0.00"
-            >
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Catégorie *</label>
-            <select 
-              v-model="form.category"
-              required
-              class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-primary focus:border-primary"
-            >
-              <option value="">Choisir une catégorie</option>
-              <option value="ebook">E-book</option>
-              <option value="repas">Repas</option>
-              <option value="ingredient">Ingrédient</option>
-              <option value="farine">Farine</option>
-              <option value="boisson">Boisson</option>
-              <option value="amuse-gueule">Amuse-gueule</option>
-              <option value="program">Programme</option>
-            </select>
-          </div>
+        <!-- Prix -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Prix *</label>
+          <input 
+            v-model.number="form.price"
+            type="number" 
+            step="0.01"
+            required
+            min="0.01"
+            class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-primary focus:border-primary"
+            placeholder="0.00"
+          >
+          <p class="mt-1 text-xs text-gray-500">⚠ Doit être supérieur à 0</p>
+        </div>
+
+        <!-- Catégorie -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Catégorie *</label>
+          <select 
+            v-model="form.category"
+            required
+            class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-primary focus:border-primary"
+          >
+            <option value="">Choisir une catégorie</option>
+            <option value="ebook">E-book</option>
+            <option value="repas">Repas</option>
+            <option value="ingredient">Ingrédient</option>
+            <option value="farine">Farine</option>
+            <option value="boisson">Boisson</option>
+            <option value="amuse-gueule">Amuse-gueule</option>
+            <option value="program">Programme</option>
+          </select>
+          <p class="mt-1 text-xs text-gray-500">⚠ Sélection obligatoire</p>
         </div>
 
         <!-- Image -->
@@ -79,27 +84,10 @@
             required
             class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-primary focus:border-primary"
           >
-          
-          <!-- Informations sur les contraintes -->
           <div class="mt-2 text-xs text-gray-500">
             <p>• Formats acceptés: JPEG, PNG, WebP</p>
             <p>• Taille maximum: 2 Mo</p>
-          </div>
-          
-          <!-- État de l'upload -->
-          <div v-if="uploading" class="text-sm text-blue-600 mt-2 flex items-center">
-            <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-primary mr-2"></div>
-            Upload en cours...
-          </div>
-          
-          <!-- Validation des erreurs -->
-          <div v-if="imageError" class="text-sm text-red-600 mt-2">
-            {{ imageError }}
-          </div>
-          
-          <!-- Aperçu de l'image -->
-          <div v-if="imagePreview" class="mt-4">
-            <img :src="imagePreview" alt="Aperçu" class="rounded-lg w-full max-h-64 object-contain border" />
+            <p>⚠ Image obligatoire</p>
           </div>
         </div>
 
