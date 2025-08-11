@@ -156,6 +156,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
+import imageCompression from 'browser-image-compression'
 import { uploadProductImage } from '../../services/firebase'
 import { useProductStore } from '../../stores/products'
 
@@ -184,10 +185,10 @@ let imageFile: File | null = null
 const success = ref(false)
 
 const isFormValid = computed(() => {
-  return form.value.name && 
-         form.value.description && 
-         form.value.price > 0 && 
-         form.value.category && 
+  return form.value.name.trim().length >= 3 &&
+         form.value.description.trim().length >= 10 &&
+         form.value.price > 0 &&
+         form.value.category &&
          imageFile !== null
 })
 
@@ -196,10 +197,9 @@ const handleImageUpload = async (event: Event) => {
   imageError.value = ''
   
   if (target.files && target.files[0]) {
-    const file = target.files[0]
+    let file = target.files[0]
     
     try {
-      // Validation simple côté client
       if (file.size > 2 * 1024 * 1024) {
         throw new Error('Image trop volumineuse (max 2 Mo)')
       }
@@ -208,24 +208,29 @@ const handleImageUpload = async (event: Event) => {
       if (!validTypes.includes(file.type)) {
         throw new Error('Format d\'image non supporté (JPEG, PNG, WebP uniquement)')
       }
-      
+
+      // Compression de l'image avant upload
+      file = await imageCompression(file, {
+        maxSizeMB: 1,
+        maxWidthOrHeight: 1080,
+        useWebWorker: true
+      })
+
       imageFile = file
-      const previewUrl = URL.createObjectURL(imageFile)
-      imagePreview.value = previewUrl
-      
-      
+      imagePreview.value = URL.createObjectURL(file)
+
     } catch (err: any) {
       imageError.value = err.message
       imageFile = null
       imagePreview.value = null
-      target.value = '' // Reset input
+      target.value = '' // reset input
     }
   }
 }
 
 const handleSubmit = async () => {
   if (!isFormValid.value) {
-    error.value = 'Veuillez remplir tous les champs obligatoires'
+    error.value = 'Veuillez remplir tous les champs obligatoires avec les valeurs minimales requises'
     return
   }
 
@@ -239,14 +244,20 @@ const handleSubmit = async () => {
     if (imageFile) {
       uploading.value = true
 
-      imageUrl = await uploadProductImage(imageFile)
+      // Timeout manuel de 60s
+      imageUrl = await Promise.race([
+        uploadProductImage(imageFile),
+        new Promise<string>((_, reject) =>
+          setTimeout(() => reject(new Error("Timeout: Upload trop long (60s)")), 60000)
+        )
+      ])
 
       uploading.value = false
     }
 
     const productData = {
-      name: form.value.name,
-      description: form.value.description,
+      name: form.value.name.trim(),
+      description: form.value.description.trim(),
       price: form.value.price,
       category: form.value.category as Category,
       image: imageUrl,
@@ -261,7 +272,7 @@ const handleSubmit = async () => {
       emit('save', productData)
       success.value = true
 
-      // Reset form
+      // Reset du formulaire
       form.value = {
         name: '',
         description: '',
@@ -285,5 +296,4 @@ const handleSubmit = async () => {
     uploading.value = false
   }
 }
-
 </script>
