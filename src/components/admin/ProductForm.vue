@@ -244,11 +244,11 @@ const handleSubmit = async () => {
     if (imageFile) {
       uploading.value = true
 
-      // Timeout manuel de 60s
+      // Timeout manuel de 30s au lieu de 60s, et message d’erreur personnalisé
       imageUrl = await Promise.race([
         uploadProductImage(imageFile),
         new Promise<string>((_, reject) =>
-          setTimeout(() => reject(new Error("Timeout: Upload trop long (60s)")), 60000)
+          setTimeout(() => reject(new Error("Timeout: Upload trop long (30s)")), 30000)
         )
       ])
 
