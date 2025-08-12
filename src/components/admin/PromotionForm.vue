@@ -159,9 +159,9 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { uploadPromotionImage } from '../../services/firebase'
 import { Timestamp } from 'firebase/firestore'
 import { usePromotionStore } from '../../stores/promotions'
+import { uploadPromotionImage } from '../../services/firebase' // assure-toi d’avoir ce fichier avec la fonction upload ci-dessous
 
 const emit = defineEmits(['close', 'save'])
 const promotionStore = usePromotionStore()
@@ -180,6 +180,7 @@ const form = ref({
 const loading = ref(false)
 const error = ref('')
 const uploading = ref(false)
+const uploadProgress = ref(0)
 const imageError = ref('')
 const imagePreview = ref<string | null>(null)
 let imageFile: File | null = null
@@ -255,15 +256,17 @@ const handleSubmit = async () => {
   loading.value = true
   error.value = ''
   success.value = false
+  uploadProgress.value = 0
 
   try {
     if (!imageFile) throw new Error('Aucune image sélectionnée')
 
     uploading.value = true
-    const imageUrl = await uploadPromotionImage(imageFile)
+    const imageUrl = await uploadPromotionImage(imageFile, (percent) => {
+      uploadProgress.value = percent
+    })
     uploading.value = false
 
-    // Convertir les dates du formulaire en Timestamp Firestore
     const validFromDate = new Date(form.value.validFrom)
     const validUntilDate = new Date(form.value.validUntil)
 
@@ -302,6 +305,7 @@ const handleSubmit = async () => {
   } finally {
     loading.value = false
     uploading.value = false
+    uploadProgress.value = 0
   }
 }
 
@@ -329,3 +333,4 @@ const cleanImagePreview = () => {
   imageFile = null
 }
 </script>
+

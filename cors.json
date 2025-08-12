@@ -1,0 +1,8 @@
+[
+  {
+    "origin": ["https://www.mery-food.fr"],
+    "method": ["GET", "POST", "PUT", "HEAD", "DELETE"],
+    "responseHeader": ["Content-Type", "x-goog-meta-*"],
+    "maxAgeSeconds": 3600
+  }
+]
