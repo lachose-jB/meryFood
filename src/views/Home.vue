@@ -366,5 +366,6 @@ const features = [
 onMounted(() => {
   productStore.loadProducts()
   promotionStore.loadActivePromotions()
+  promotionStore.loadPromotions()
 })
 </script>

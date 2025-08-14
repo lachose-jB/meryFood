@@ -3,6 +3,7 @@ import { ref } from 'vue'
 import { Timestamp } from 'firebase/firestore'
 import { promotionService } from '../services/firebase'
 import type { Promotion } from '../types'
+import { convertToDate } from '../utils/dateUtils'
 
 type PromotionCreate = Omit<Promotion, 'id' | 'createdAt'> & {
   validFrom: string | Timestamp
@@ -18,6 +19,60 @@ export const usePromotionStore = defineStore('promotions', () => {
   // Convertit une date en Timestamp Firebase
   const toFirebaseTimestamp = (date: string | Timestamp): Timestamp => {
     return date instanceof Timestamp ? date : Timestamp.fromDate(new Date(date))
+  }
+
+  // Obtenir les promotions actives pour une catégorie spécifique
+  const getActivePromotionsForCategory = (category: string): Promotion[] => {
+    const now = new Date()
+    
+    return promotions.value.filter(promotion => {
+      if (!promotion.isActive) return false
+      
+      const validFrom = convertToDate(promotion.validFrom)
+      const validUntil = convertToDate(promotion.validUntil)
+      
+      if (isNaN(validFrom.getTime()) || isNaN(validUntil.getTime())) return false
+      if (now < validFrom || now > validUntil) return false
+      
+      // Si aucune catégorie spécifiée, la promotion s'applique à tous les produits
+      if (!promotion.applicableCategories || promotion.applicableCategories.length === 0) {
+        return true
+      }
+      
+      // Vérifier si la catégorie est dans la liste des catégories applicables
+      return promotion.applicableCategories.includes(category)
+    })
+  }
+
+  // Calculer le prix avec réduction pour un produit
+  const calculateDiscountedPrice = (originalPrice: number, category: string): { 
+    discountedPrice: number, 
+    discount: number, 
+    promotion: Promotion | null 
+  } => {
+    const applicablePromotions = getActivePromotionsForCategory(category)
+    
+    if (applicablePromotions.length === 0) {
+      return {
+        discountedPrice: originalPrice,
+        discount: 0,
+        promotion: null
+      }
+    }
+    
+    // Prendre la promotion avec le plus gros pourcentage de réduction
+    const bestPromotion = applicablePromotions.reduce((best, current) => {
+      return Number(current.discount) > Number(best.discount) ? current : best
+    })
+    
+    const discountAmount = (originalPrice * Number(bestPromotion.discount)) / 100
+    const discountedPrice = originalPrice - discountAmount
+    
+    return {
+      discountedPrice: Math.max(0, discountedPrice), // S'assurer que le prix ne soit pas négatif
+      discount: Number(bestPromotion.discount),
+      promotion: bestPromotion
+    }
   }
 
   // Charger toutes les promotions
@@ -186,5 +241,7 @@ export const usePromotionStore = defineStore('promotions', () => {
     updatePromotion,
     deletePromotion,
     togglePromotion
+    getActivePromotionsForCategory,
+    calculateDiscountedPrice
   }
 })

@@ -35,7 +35,21 @@
               <div class="flex-1">
                 <h3 class="font-title font-semibold text-lg">{{ item.name }}</h3>
                 <p class="text-gray-600 text-sm">{{ item.description }}</p>
-                <p class="text-primary font-semibold mt-2">{{ item.price.toFixed(2) }}€</p>
+                <div class="mt-2">
+                  <div v-if="item.originalPrice && item.originalPrice > item.price" class="flex items-center space-x-2">
+                    <span class="text-sm line-through text-gray-400">{{ item.originalPrice.toFixed(2) }}€</span>
+                    <span class="text-primary font-semibold">{{ item.price.toFixed(2) }}€</span>
+                    <span class="text-xs bg-red-100 text-red-800 px-2 py-1 rounded-full">
+                      -{{ Math.round(((item.originalPrice - item.price) / item.originalPrice) * 100) }}%
+                    </span>
+                  </div>
+                  <div v-else class="text-primary font-semibold">
+                    {{ item.price.toFixed(2) }}€
+                  </div>
+                  <div v-if="item.appliedPromotion" class="text-xs text-green-600 mt-1">
+                    🎉 {{ item.appliedPromotion.title }}
+                  </div>
+                </div>
               </div>
               <div class="flex items-center space-x-4">
                 <div class="flex items-center space-x-2">
@@ -73,6 +87,10 @@
               <span>Sous-total ({{ cartStore.totalItems }} articles)</span>
               <span>{{ cartStore.totalPrice.toFixed(2) }}€</span>
             </div>
+            <div v-if="cartStore.totalSavings > 0" class="flex justify-between text-green-600">
+              <span>Économies (promotions)</span>
+              <span>-{{ cartStore.totalSavings.toFixed(2) }}€</span>
+            </div>
             <div class="flex justify-between">
               <span>Livraison</span>
               <span class="italic text-gray-500">Détails via WhatsApp</span>
@@ -81,6 +99,9 @@
               <div class="flex justify-between font-semibold text-lg">
                 <span>Total</span>
                 <span class="text-primary">{{ cartStore.totalPrice.toFixed(2) }}€</span>
+              </div>
+              <div v-if="cartStore.totalSavings > 0" class="text-sm text-green-600 text-right">
+                Vous économisez {{ cartStore.totalSavings.toFixed(2) }}€ !
               </div>
             </div>
           </div>
@@ -144,12 +165,21 @@ const orderViaWhatsApp = () => {
   cartStore.items.forEach((item, index) => {
     message += `${index + 1}. *${item.name}*\n`
     message += `   Quantité: ${item.quantity}\n`
-    message += `   Prix unitaire: ${item.price.toFixed(2)}€\n`
+    if (item.originalPrice && item.originalPrice > item.price) {
+      message += `   Prix original: ${item.originalPrice.toFixed(2)}€\n`
+      message += `   Prix réduit: ${item.price.toFixed(2)}€\n`
+      message += `   Économie: ${(item.originalPrice - item.price).toFixed(2)}€ par unité\n`
+    } else {
+      message += `   Prix unitaire: ${item.price.toFixed(2)}€\n`
+    }
     message += `   Sous-total: ${(item.price * item.quantity).toFixed(2)}€\n\n`
   })
   
   message += `💰 *RÉSUMÉ:*\n`
   message += `Sous-total: ${cartStore.totalPrice.toFixed(2)}€\n`
+  if (cartStore.totalSavings > 0) {
+    message += `🎉 Économies totales: ${cartStore.totalSavings.toFixed(2)}€\n`
+  }
   message += `*TOTAL: ${cartStore.totalPrice.toFixed(2)}€*\n\n`
   message += `🚚 Les détails de la livraison seront confirmés par WhatsApp.\n\n`
   message += `📝 Merci de confirmer cette commande et de m'indiquer:\n`

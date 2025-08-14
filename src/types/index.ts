@@ -29,6 +29,7 @@ export interface Promotion {
   title: string
   description: string
   discount: Number  
+  applicableCategories?: string[]
   validFrom: string | Timestamp
   validUntil: string | Timestamp
   promoCode?: string | null

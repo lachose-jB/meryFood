@@ -89,6 +89,25 @@
           >
         </div>
 
+        <!-- Catégories applicables -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Catégories concernées</label>
+          <div class="text-sm text-gray-600 mb-3">
+            Sélectionnez les catégories de produits auxquelles cette promotion s'applique. Si aucune catégorie n'est sélectionnée, la promotion s'appliquera à tous les produits.
+          </div>
+          <div class="grid grid-cols-2 gap-3">
+            <label v-for="category in availableCategories" :key="category.value" class="flex items-center">
+              <input 
+                type="checkbox" 
+                :value="category.value"
+                v-model="form.applicableCategories"
+                class="text-primary focus:ring-primary rounded"
+              >
+              <span class="ml-2 text-sm">{{ category.label }}</span>
+            </label>
+          </div>
+        </div>
+
         <!-- Image -->
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-2">Image de la promotion *</label>
@@ -173,6 +192,7 @@ const form = ref({
   validFrom: '',
   validUntil: '',
   promoCode: '',
+  applicableCategories: [] as string[],
   image: '',
   isActive: true
 })
@@ -185,6 +205,16 @@ const imageError = ref('')
 const imagePreview = ref<string | null>(null)
 let imageFile: File | null = null
 const success = ref(false)
+
+const availableCategories = [
+  { value: 'ebook', label: 'E-books' },
+  { value: 'repas', label: 'Repas' },
+  { value: 'ingredient', label: 'Ingrédients' },
+  { value: 'farine', label: 'Farines' },
+  { value: 'boisson', label: 'Boissons' },
+  { value: 'amuse-gueule', label: 'Amuse-gueules' },
+  { value: 'program', label: 'Programmes' }
+]
 
 const isFormValid = computed(() => {
   error.value = '' // reset avant validation
@@ -317,6 +347,7 @@ const resetForm = () => {
     validFrom: '',
     validUntil: '',
     promoCode: '',
+    applicableCategories: [],
     image: '',
     isActive: true
   }

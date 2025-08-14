@@ -1,9 +1,12 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import type { Product } from '../types'
+import type { Promotion } from '../types'
 
 export interface CartItem extends Product {
   quantity: number
+  originalPrice?: number
+  appliedPromotion?: Promotion | null
 }
 
 export const useCartStore = defineStore('cart', () => {
@@ -15,6 +18,15 @@ export const useCartStore = defineStore('cart', () => {
 
   const totalPrice = computed(() => 
     items.value.reduce((sum, item) => sum + (item.price * item.quantity), 0)
+  )
+
+  const totalSavings = computed(() => 
+    items.value.reduce((sum, item) => {
+      if (item.originalPrice && item.originalPrice > item.price) {
+        return sum + ((item.originalPrice - item.price) * item.quantity)
+      }
+      return sum
+    }, 0)
   )
 
   const addToCart = (product: Product, quantity: number = 1) => {
@@ -53,6 +65,7 @@ export const useCartStore = defineStore('cart', () => {
     items,
     totalItems,
     totalPrice,
+    totalSavings,
     addToCart,
     removeFromCart,
     updateQuantity,

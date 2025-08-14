@@ -3,6 +3,9 @@
     <div class="relative overflow-hidden">
       <img :src="product.image" :alt="product.name" class="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300">
       <div class="absolute top-3 right-3">
+        <div v-if="promotionInfo.promotion" class="bg-red-500 text-white text-xs px-2 py-1 rounded-full mb-1">
+          -{{ promotionInfo.discount }}%
+        </div>
         <span v-if="product.category === 'ebook'" class="bg-blue-500 text-white text-xs px-2 py-1 rounded-full">
           E-book
         </span>
@@ -69,8 +72,21 @@
       </div>
 
       <div class="flex items-center justify-between">
-        <div class="text-2xl font-bold text-primary">
-          {{ product.price.toFixed(2) }}€
+        <div class="flex flex-col">
+          <div v-if="promotionInfo.promotion" class="flex items-center space-x-2">
+            <span class="text-lg line-through text-gray-400">
+              {{ product.price.toFixed(2) }}€
+            </span>
+            <span class="text-2xl font-bold text-red-600">
+              {{ promotionInfo.discountedPrice.toFixed(2) }}€
+            </span>
+          </div>
+          <div v-else class="text-2xl font-bold text-primary">
+            {{ product.price.toFixed(2) }}€
+          </div>
+          <div v-if="promotionInfo.promotion" class="text-xs text-green-600 font-medium">
+            Économisez {{ (product.price - promotionInfo.discountedPrice).toFixed(2) }}€
+          </div>
         </div>
         <div class="flex space-x-2">
           <button 
@@ -96,8 +112,10 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useCartStore } from '../stores/cart'
+import { usePromotionStore } from '../stores/promotions'
 import type { Product } from '../types'
 
 interface Props {
@@ -107,6 +125,11 @@ interface Props {
 const props = defineProps<Props>()
 const router = useRouter()
 const cartStore = useCartStore()
+const promotionStore = usePromotionStore()
+
+const promotionInfo = computed(() => {
+  return promotionStore.calculateDiscountedPrice(props.product.price, props.product.category)
+})
 
 const goToProduct = () => {
   router.push(`/product/${props.product.id}`)
@@ -114,14 +137,26 @@ const goToProduct = () => {
 
 const addToCart = () => {
   if (props.product.inStock) {
-    cartStore.addToCart(props.product)
+    // Créer une copie du produit avec le prix réduit si applicable
+    const productWithDiscount = {
+      ...props.product,
+      price: promotionInfo.value.discountedPrice,
+      originalPrice: props.product.price,
+      appliedPromotion: promotionInfo.value.promotion
+    }
+    cartStore.addToCart(productWithDiscount)
   }
 }
 
 const orderViaWhatsApp = () => {
+  const finalPrice = promotionInfo.value.discountedPrice
+  const savings = promotionInfo.value.promotion ? 
+    ` (Prix original: ${props.product.price.toFixed(2)}€ - Économie: ${(props.product.price - finalPrice).toFixed(2)}€)` : ''
+  
   const message = `🛒 *Commande Produit - Merry's Food*\n\n` +
     `*${props.product.name}*\n` +
-    `Prix: ${props.product.price.toFixed(2)}€\n` +
+    `Prix: ${finalPrice.toFixed(2)}€${savings}\n` +
+    (promotionInfo.value.promotion ? `🎉 Promotion appliquée: -${promotionInfo.value.discount}%\n` : '') +
     `Description: ${props.product.description}\n\n` +
     `Je souhaiterais commander ce produit. Pouvez-vous me donner plus d'informations sur la disponibilité et la livraison ?\n\n` +
     `Merci ! 😊`
