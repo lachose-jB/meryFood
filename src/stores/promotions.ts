@@ -241,7 +241,5 @@ export const usePromotionStore = defineStore('promotions', () => {
     updatePromotion,
     deletePromotion,
     togglePromotion
-    getActivePromotionsForCategory,
-    calculateDiscountedPrice
   }
 })
