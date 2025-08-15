@@ -12,9 +12,6 @@ import ArticleDetail from '../views/ArticleDetail.vue'
 import Contact from '../views/Contact.vue'
 import Login from '../views/Login.vue'
 
-// Pages admin
-import Dashboard from '../views/admin/Dashboard.vue'
-
 // Routes
 const routes = [
   { path: '/', name: 'Home', component: Home },
@@ -30,19 +27,21 @@ const routes = [
     path: '/login',
     name: 'Login',
     component: Login,
-    meta: {
-      redirectIfAuthenticated: true
-    }
+    meta: { redirectIfAuthenticated: true }
   },
-  {
-    path: '/admin',
-    name: 'Dashboard',
-    component: Dashboard,
-    meta: {
-      requiresAuth: true,
-      requiresAdmin: true
-    }
-  },
+
+  // ⚡ Import dynamique admin uniquement en dev
+  ...(import.meta.env.DEV
+    ? [
+        {
+          path: '/admin',
+          name: 'Dashboard',
+          component: () => import('../views/admin/Dashboard.vue'),
+          meta: { requiresAuth: true, requiresAdmin: true }
+        }
+      ]
+    : []),
+
   {
     path: '/unauthorized',
     name: 'Unauthorized',
@@ -67,7 +66,6 @@ const router = createRouter({
 router.beforeEach(async (to, _from, next) => {
   const authStore = useAuthStore()
 
-  // Restaurer la session s’il y a un token local
   if (!authStore.user && localStorage.getItem('auth_session')) {
     await authStore.initAuth()
   }
@@ -75,39 +73,27 @@ router.beforeEach(async (to, _from, next) => {
   const isAuth = authStore.isAuthenticated
   const isAdmin = authStore.isAdmin
 
-  // 🔒 Rediriger les utilisateurs connectés depuis /login
   if (to.meta.redirectIfAuthenticated && isAuth) {
     next(isAdmin ? '/admin' : '/')
     return
   }
 
-  // 🔐 Protection des routes avec login requis
   if (to.meta.requiresAuth && !isAuth) {
     next({ path: '/login', query: { redirect: to.fullPath } })
     return
   }
 
-  // 🔐 Protection des routes admin
   if (to.meta.requiresAdmin && (!isAuth || !isAdmin)) {
     next(isAuth ? '/unauthorized' : { path: '/login', query: { redirect: to.fullPath, admin: '1' } })
     return
   }
 
-  // 🛑 Vérif complémentaire sur les chemins commençant par /admin
   if (to.path.startsWith('/admin') && !isAdmin) {
     next('/unauthorized')
     return
   }
 
   next()
-})
-
-// Optional: nettoyage post-navigation
-router.afterEach((to, from) => {
-  if (from.path.startsWith('/admin') && !to.path.startsWith('/admin')) {
-    console.log('Déconnexion de la zone admin')
-    // authStore.clearAdminCache() ?
-  }
 })
 
 export default router

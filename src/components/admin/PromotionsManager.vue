@@ -1,6 +1,3 @@
-<<<<<<< HEAD
-{"code":"rate-limited","message":"You have hit the rate limit. Please upgrade to keep chatting.","providerLimitHit":false,"isRetryable":true}
-=======
 <template>
   <div class="space-y-6">
     <!-- Loading State -->
@@ -20,6 +17,9 @@
               </th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Réduction
+              </th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Catégories
               </th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Période
@@ -58,6 +58,24 @@
                 <span class="text-lg font-bold text-red-600">
                   -{{ promotion.discount }}%
                 </span>
+              </td>
+              <td class="px-6 py-4">
+                <div class="flex flex-wrap gap-1">
+                  <template v-if="promotion.applicableCategories && promotion.applicableCategories.length > 0">
+                    <span 
+                      v-for="category in promotion.applicableCategories" 
+                      :key="category"
+                      class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
+                    >
+                      {{ getCategoryLabel(category) }}
+                    </span>
+                  </template>
+                  <template v-else>
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                      Toutes catégories
+                    </span>
+                  </template>
+                </div>
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                 <div>Du {{ promotion.validFrom ? formatFirebaseDate(promotion.validFrom) : 'Date inconnue' }}</div>
@@ -111,10 +129,20 @@
 
   const promotionStore = usePromotionStore()
 
-  // Pas de variable globale validFrom/validUntil hors contexte, ça crée des erreurs.
-  // Il faut convertir à la volée dans les fonctions ou composants.
+  // Mapping des catégories pour l'affichage
+  const getCategoryLabel = (category: string): string => {
+    const categoryLabels: Record<string, string> = {
+      'ebook': 'E-book',
+      'repas': 'Repas',
+      'ingredient': 'Ingrédient',
+      'farine': 'Farine',
+      'boisson': 'Boisson',
+      'amuse-gueule': 'Amuse-gueule',
+      'program': 'Programme'
+    }
+    return categoryLabels[category] || category
+  }
 
-  // Utilise convertToDate dans getStatusClass
   const getStatusClass = (promotion: Promotion) => {
     const now = new Date()
 
@@ -173,10 +201,6 @@
     return 'Active'
   }
 
-
-  // Supprime les appels en dehors de contexte
-  // Laisse convertToDate dans les boucles ou setup des composants quand tu as un promotion
-
   const togglePromotion = async (promotion: Promotion) => {
     const success = await promotionStore.togglePromotion(promotion.id!, !promotion.isActive)
     if (!success) {
@@ -197,5 +221,3 @@
     promotionStore.loadPromotions()
   })
 </script>
-
->>>>>>> 8b6ff2a (propomtion)

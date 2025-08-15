@@ -91,7 +91,7 @@
 
         <!-- Catégories applicables -->
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">Catégories concernées</label>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Catégories concernées *</label>
           <div class="text-sm text-gray-600 mb-3">
             Sélectionnez les catégories de produits auxquelles cette promotion s'applique. Au moins une catégorie doit être sélectionnée.
           </div>
@@ -130,7 +130,7 @@
           </div>
           <div v-if="uploading" class="text-sm text-blue-600 mt-2 flex items-center">
             <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-primary mr-2"></div>
-            Upload en cours...
+            Upload en cours... {{ uploadProgress }}%
           </div>
           <div v-if="imageError" class="text-sm text-red-600 mt-2">
             {{ imageError }}
@@ -154,6 +154,13 @@
         <!-- Erreur -->
         <div v-if="error" class="p-3 bg-red-50 border border-red-200 rounded-lg">
           <p class="text-sm text-red-600">{{ error }}</p>
+        </div>
+
+        <!-- Debug info -->
+        <div class="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+          <p class="text-sm text-blue-800">
+            <strong>Debug:</strong> Catégories à envoyer: {{ JSON.stringify(form.applicableCategories) }}
+          </p>
         </div>
 
         <!-- Boutons -->
@@ -183,7 +190,7 @@
 import { ref, computed } from 'vue'
 import { Timestamp } from 'firebase/firestore'
 import { usePromotionStore } from '../../stores/promotions'
-import { uploadPromotionImage } from '../../services/firebase' // assure-toi d’avoir ce fichier avec la fonction upload ci-dessous
+import { uploadPromotionImage } from '../../services/firebase'
 
 const emit = defineEmits(['close', 'save'])
 const promotionStore = usePromotionStore()
@@ -290,6 +297,11 @@ const handleSubmit = async () => {
     return
   }
 
+  console.log('🚀 Submission des données:', {
+    title: form.value.title,
+    applicableCategories: form.value.applicableCategories
+  })
+
   loading.value = true
   error.value = ''
   success.value = false
@@ -299,9 +311,7 @@ const handleSubmit = async () => {
     if (!imageFile) throw new Error('Aucune image sélectionnée')
 
     uploading.value = true
-    const imageUrl = await uploadPromotionImage(imageFile, (percent) => {
-      uploadProgress.value = percent
-    })
+    const imageUrl = await uploadPromotionImage(imageFile)
     uploading.value = false
 
     const validFromDate = new Date(form.value.validFrom)
@@ -318,13 +328,15 @@ const handleSubmit = async () => {
       title: form.value.title,
       description: form.value.description,
       discount: Number(form.value.discountPercentage),
+      applicableCategories: form.value.applicableCategories, // ✅ LIGNE CRITIQUE AJOUTÉE
       validFrom,
       validUntil,
       promoCode: form.value.promoCode || null,
       image: imageUrl,
-      isActive: form.value.isActive,
-      createdAt: Timestamp.now()
+      isActive: form.value.isActive
     }
+
+    console.log('📦 Données à envoyer au store:', promotionData)
 
     const added = await promotionStore.addPromotion(promotionData)
     if (!added) {
@@ -336,7 +348,7 @@ const handleSubmit = async () => {
     resetForm()
 
   } catch (e: any) {
-    console.error("Erreur:", e)
+    console.error("❌ Erreur:", e)
     error.value = e.message || "Erreur lors de l'enregistrement"
     cleanImagePreview()
   } finally {
@@ -371,4 +383,3 @@ const cleanImagePreview = () => {
   imageFile = null
 }
 </script>
-

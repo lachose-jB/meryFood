@@ -26,17 +26,20 @@ export const usePromotionStore = defineStore('promotions', () => {
     const now = new Date()
     
     return promotions.value.filter(promotion => {
+      // Vérifier si la promotion est active
       if (!promotion.isActive) return false
       
+      // Vérifier les dates de validité
       const validFrom = convertToDate(promotion.validFrom)
       const validUntil = convertToDate(promotion.validUntil)
       
       if (isNaN(validFrom.getTime()) || isNaN(validUntil.getTime())) return false
       if (now < validFrom || now > validUntil) return false
       
-      // La promotion ne s'applique QUE si des catégories sont spécifiées ET que la catégorie du produit en fait partie
+      // Vérifier si la promotion s'applique à cette catégorie
       if (!promotion.applicableCategories || promotion.applicableCategories.length === 0) {
-        return false // Pas de catégories = pas d'application
+        // Si aucune catégorie n'est spécifiée, la promotion s'applique à tous les produits
+        return true
       }
       
       // Vérifier si la catégorie est dans la liste des catégories applicables
@@ -44,7 +47,34 @@ export const usePromotionStore = defineStore('promotions', () => {
     })
   }
 
-  // Calculer le prix avec réduction pour un produit
+  // Obtenir les promotions actives pour plusieurs catégories
+  const getActivePromotionsForCategories = (categories: string[]): Promotion[] => {
+    const now = new Date()
+    
+    return promotions.value.filter(promotion => {
+      // Vérifier si la promotion est active
+      if (!promotion.isActive) return false
+      
+      // Vérifier les dates de validité
+      const validFrom = convertToDate(promotion.validFrom)
+      const validUntil = convertToDate(promotion.validUntil)
+      
+      if (isNaN(validFrom.getTime()) || isNaN(validUntil.getTime())) return false
+      if (now < validFrom || now > validUntil) return false
+      
+      // Si aucune catégorie n'est spécifiée pour la promotion, elle s'applique à tout
+      if (!promotion.applicableCategories || promotion.applicableCategories.length === 0) {
+        return true
+      }
+      
+      // Vérifier si au moins une des catégories du produit correspond
+      return categories.some(category => 
+        promotion.applicableCategories!.includes(category)
+      )
+    })
+  }
+
+  // Calculer le prix avec réduction pour un produit avec une catégorie
   const calculateDiscountedPrice = (originalPrice: number, category: string): { 
     discountedPrice: number, 
     discount: number, 
@@ -69,10 +99,57 @@ export const usePromotionStore = defineStore('promotions', () => {
     const discountedPrice = originalPrice - discountAmount
     
     return {
-      discountedPrice: Math.max(0, discountedPrice), // S'assurer que le prix ne soit pas négatif
+      discountedPrice: Math.max(0, discountedPrice),
       discount: Number(bestPromotion.discount),
       promotion: bestPromotion
     }
+  }
+
+  // Calculer le prix avec réduction pour un produit avec plusieurs catégories
+  const calculateDiscountedPriceForCategories = (originalPrice: number, categories: string[]): { 
+    discountedPrice: number, 
+    discount: number, 
+    promotion: Promotion | null 
+  } => {
+    const applicablePromotions = getActivePromotionsForCategories(categories)
+    
+    if (applicablePromotions.length === 0) {
+      return {
+        discountedPrice: originalPrice,
+        discount: 0,
+        promotion: null
+      }
+    }
+    
+    // Prendre la promotion avec le plus gros pourcentage de réduction
+    const bestPromotion = applicablePromotions.reduce((best, current) => {
+      return Number(current.discount) > Number(best.discount) ? current : best
+    })
+    
+    const discountAmount = (originalPrice * Number(bestPromotion.discount)) / 100
+    const discountedPrice = originalPrice - discountAmount
+    
+    return {
+      discountedPrice: Math.max(0, discountedPrice),
+      discount: Number(bestPromotion.discount),
+      promotion: bestPromotion
+    }
+  }
+
+  // Vérifier si une promotion s'applique à un produit
+  const isPromotionApplicableToProduct = (promotion: Promotion, productCategories: string | string[]): boolean => {
+    // Si aucune catégorie n'est spécifiée pour la promotion, elle s'applique à tout
+    if (!promotion.applicableCategories || promotion.applicableCategories.length === 0) {
+      return true
+    }
+    
+    // Normaliser les catégories du produit en tableau
+    const categories = Array.isArray(productCategories) ? productCategories : [productCategories]
+    
+    // Vérifier si au moins une catégorie du produit correspond
+    return categories.some(category => 
+      promotion.applicableCategories!.includes(category)
+    )
   }
 
   // Charger toutes les promotions
@@ -130,7 +207,7 @@ export const usePromotionStore = defineStore('promotions', () => {
     try {
       const promotionWithTimestamps = {
         ...promotionData,
-        discount: promotionData.discount, // Assure la cohérence avec l'interface
+        discount: promotionData.discount,
         validFrom: toFirebaseTimestamp(promotionData.validFrom),
         validUntil: toFirebaseTimestamp(promotionData.validUntil),
         createdAt: Timestamp.now()
@@ -242,6 +319,9 @@ export const usePromotionStore = defineStore('promotions', () => {
     deletePromotion,
     togglePromotion,
     getActivePromotionsForCategory,
-    calculateDiscountedPrice
+    getActivePromotionsForCategories,
+    calculateDiscountedPrice,
+    calculateDiscountedPriceForCategories,
+    isPromotionApplicableToProduct
   }
 })
