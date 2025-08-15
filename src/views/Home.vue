@@ -333,6 +333,8 @@ const sharePromotion = (promotion: any) => {
     `*${promotion.title}*\n` +
     `${promotion.description}\n\n` +
     `💰 **${promotion.discountPercentage}% de réduction**\n` +
+    (promotion.applicableCategories && promotion.applicableCategories.length > 0 ? 
+      `🏷️ Valable sur: ${promotion.applicableCategories.join(', ')}\n` : '') +
     (promotion.promoCode ? `🎫 Code promo: **${promotion.promoCode}**\n` : '') +
     `⏰ Valable jusqu'au ${formatPromotionDate(promotion.validUntil)}\n\n` +
     `Ne ratez pas cette offre exceptionnelle ! 😊\n\n` +

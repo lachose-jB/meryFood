@@ -93,7 +93,7 @@
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-2">Catégories concernées</label>
           <div class="text-sm text-gray-600 mb-3">
-            Sélectionnez les catégories de produits auxquelles cette promotion s'applique. Si aucune catégorie n'est sélectionnée, la promotion s'appliquera à tous les produits.
+            Sélectionnez les catégories de produits auxquelles cette promotion s'applique. Au moins une catégorie doit être sélectionnée.
           </div>
           <div class="grid grid-cols-2 gap-3">
             <label v-for="category in availableCategories" :key="category.value" class="flex items-center">
@@ -105,6 +105,9 @@
               >
               <span class="ml-2 text-sm">{{ category.label }}</span>
             </label>
+          </div>
+          <div v-if="form.applicableCategories.length === 0" class="mt-2 text-sm text-red-600">
+            ⚠️ Veuillez sélectionner au moins une catégorie
           </div>
         </div>
 
@@ -225,8 +228,12 @@ const isFormValid = computed(() => {
     form.value.discountPercentage <= 0 ||
     !form.value.validFrom ||
     !form.value.validUntil ||
-    !imageFile
+    !imageFile ||
+    form.value.applicableCategories.length === 0
   ) {
+    if (form.value.applicableCategories.length === 0) {
+      error.value = 'Veuillez sélectionner au moins une catégorie'
+    }
     return false
   }
 

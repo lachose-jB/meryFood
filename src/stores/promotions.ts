@@ -34,9 +34,9 @@ export const usePromotionStore = defineStore('promotions', () => {
       if (isNaN(validFrom.getTime()) || isNaN(validUntil.getTime())) return false
       if (now < validFrom || now > validUntil) return false
       
-      // Si aucune catégorie spécifiée, la promotion s'applique à tous les produits
+      // La promotion ne s'applique QUE si des catégories sont spécifiées ET que la catégorie du produit en fait partie
       if (!promotion.applicableCategories || promotion.applicableCategories.length === 0) {
-        return true
+        return false // Pas de catégories = pas d'application
       }
       
       // Vérifier si la catégorie est dans la liste des catégories applicables

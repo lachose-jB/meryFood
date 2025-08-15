@@ -604,6 +604,7 @@ export const promotionService = {
     const ref = collection(db, 'promotions')
     const docRef = await addDoc(ref, {
       ...promotion,
+      applicableCategories: promotion.applicableCategories || [],
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp()
     })

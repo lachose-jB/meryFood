@@ -51,6 +51,9 @@
                     <div v-if="promotion.promoCode" class="text-xs text-purple-600 font-mono">
                       Code: {{ promotion.promoCode }}
                     </div>
+                    <div v-if="promotion.applicableCategories && promotion.applicableCategories.length > 0" class="text-xs text-blue-600 mt-1">
+                      Catégories: {{ promotion.applicableCategories.join(', ') }}
+                    </div>
                   </div>
                 </div>
               </td>
