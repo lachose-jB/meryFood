@@ -10,6 +10,9 @@ interface ImportMetaEnv {
   readonly VITE_FIREBASE_APP_ID: string;
   readonly VITE_FIREBASE_MEASUREMENT_ID: string;
   readonly VITE_FIREBASE_SMTP_PASS: string;
+  readonly VITE_EMAILJS_SERVICE: string;
+  readonly VITE_EMAILJS_TEMPLATE: string;
+  readonly VITE_EMAILJS_PUBLIC: string;
   // ajoute ici d'autres variables VITE_ si besoin
 }
 
