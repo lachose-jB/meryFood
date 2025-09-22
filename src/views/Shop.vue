@@ -80,6 +80,7 @@
               v-for="product in sortedProducts" 
               :key="product.id" 
               :product="product" 
+              @download="openDownloadModal(product)"
             />
           </div>
 
@@ -89,6 +90,12 @@
         </div>
       </div>
     </div>
+    <!-- Modal de téléchargement -->
+    <EbookDownloadModal 
+      v-if="showDownloadModal && selectedProductForDownload" 
+      :products="selectedProductForDownload" 
+      @close="closeDownloadModal"
+    />
   </div>
 </template>
 
@@ -96,12 +103,31 @@
 import { ref, computed, onMounted } from 'vue'
 import ProductCard from '../components/ProductCard.vue'
 import { useProductStore } from '../stores/products'
+import EbookDownloadModal from '../components/EbookDownloadModal.vue'
 
 const productStore = useProductStore()
 
 const selectedCategory = ref('all')
 const selectedPriceRange = ref('all')
 const sortBy = ref('name')
+
+
+// Modal
+const showDownloadModal = ref(false)
+const selectedProductForDownload = ref(null)
+
+// Ouvrir le modal avec le produit sélectionné
+const openDownloadModal = (product: any) => {
+  selectedProductForDownload.value = product
+  showDownloadModal.value = true
+}
+
+// Fermer le modal
+const closeDownloadModal = () => {
+  selectedProductForDownload.value = null
+  showDownloadModal.value = false
+}
+
 
 const categories = [
   { value: 'all', label: 'Tous les produits' },

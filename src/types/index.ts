@@ -10,6 +10,8 @@ export interface Product {
   inStock: boolean
   rating?: number
   reviews?: number
+  pdfUrl?: string
+  isEbook?: boolean
 }
 
 export interface BlogPost {

@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { productService } from '../services/firebase'
 import type { Product } from '../types'
 
@@ -34,7 +34,7 @@ export const useProductStore = defineStore('products', () => {
   }
 
   // Charger produits par catégorie
-  const getProductsByCategory = async (category: string): Promise<Product[]> => {
+  const getProductsByCategory = async (category: Product['category']): Promise<Product[]> => {
     try {
       return await productService.getByCategory(category)
     } catch (err) {
@@ -43,6 +43,11 @@ export const useProductStore = defineStore('products', () => {
       return []
     }
   }
+
+  // Filtrer les ebooks gratuits
+  const freeEbooks = computed(() =>
+    products.value.filter(p => p.isEbook && p.price === 0)
+  )
 
   // Ajouter un produit (admin)
   const addProduct = async (product: Omit<Product, 'id'>): Promise<boolean> => {
@@ -65,7 +70,7 @@ export const useProductStore = defineStore('products', () => {
     try {
       const success = await productService.update(id, updates)
       if (success) {
-        await loadProducts() // Recharger la liste
+        await loadProducts()
       }
       return success
     } catch (err) {
@@ -80,7 +85,7 @@ export const useProductStore = defineStore('products', () => {
     try {
       const success = await productService.delete(id)
       if (success) {
-        await loadProducts() // Recharger la liste
+        await loadProducts()
       }
       return success
     } catch (err) {
@@ -92,6 +97,7 @@ export const useProductStore = defineStore('products', () => {
 
   return {
     products,
+    freeEbooks,
     loading,
     error,
     loadProducts,

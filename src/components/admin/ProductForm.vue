@@ -47,11 +47,13 @@
             type="number" 
             step="0.01"
             required
-            min="0.01"
-            class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-primary focus:border-primary"
+            :min="form.category === 'ebook' ? 0 : 0.01"
+            class="..."
             placeholder="0.00"
-          >
-          <p class="mt-1 text-xs text-gray-500">⚠ Doit être supérieur à 0</p>
+          />
+          <p class="mt-1 text-xs text-gray-500">
+            ⚠ Prix minimum {{ form.category === 'ebook' ? '0 (gratuit possible)' : '0.01' }}
+          </p>
         </div>
 
         <!-- Catégorie -->
@@ -74,7 +76,7 @@
           <p class="mt-1 text-xs text-gray-500">⚠ Sélection obligatoire</p>
         </div>
 
-        <!-- Image -->
+       <!-- Image -->
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-2">Image du produit *</label>
           <input
@@ -84,10 +86,65 @@
             required
             class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-primary focus:border-primary"
           >
+          
+          <!-- Informations sur les contraintes -->
           <div class="mt-2 text-xs text-gray-500">
             <p>• Formats acceptés: JPEG, PNG, WebP</p>
             <p>• Taille maximum: 2 Mo</p>
-            <p>⚠ Image obligatoire</p>
+          </div>
+          
+          <!-- État de l'upload -->
+          <div v-if="uploading" class="text-sm text-blue-600 mt-2 flex items-center">
+            <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-primary mr-2"></div>
+            Upload en cours...
+          </div>
+          
+          <!-- Validation des erreurs -->
+          <div v-if="imageError" class="text-sm text-red-600 mt-2">
+            {{ imageError }}
+          </div>
+          
+          <!-- Aperçu de l'image -->
+          <div v-if="imagePreview" class="mt-4">
+            <img :src="imagePreview" alt="Aperçu" class="rounded-lg w-full max-h-64 object-contain border" />
+          </div>
+        </div>
+
+         <!-- PDF pour e-books -->
+        <div v-if="form.category === 'ebook'">
+          <label class="block text-sm font-medium text-gray-700 mb-2">Fichier PDF de l'e-book *</label>
+          <input
+            type="file"
+            accept="application/pdf"
+            @change="handlePDFUpload"
+            :required="form.category === 'ebook'"
+            class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-primary focus:border-primary"
+          >
+          <div class="mt-2 text-xs text-gray-500">
+            <p>• Format accepté: PDF uniquement</p>
+            <p>• Taille maximum: 10 Mo</p>
+            <p>⚠ Fichier PDF obligatoire pour les e-books</p>
+          </div>
+          
+          <!-- État de l'upload PDF -->
+          <div v-if="uploadingPDF" class="text-sm text-blue-600 mt-2 flex items-center">
+            <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-primary mr-2"></div>
+            Upload du PDF en cours...
+          </div>
+          
+          <!-- Erreur PDF -->
+          <div v-if="pdfError" class="text-sm text-red-600 mt-2">
+            {{ pdfError }}
+          </div>
+          
+          <!-- Aperçu PDF -->
+          <div v-if="pdfFile" class="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg">
+            <div class="flex items-center">
+              <svg class="h-5 w-5 text-green-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd" />
+              </svg>
+              <span class="text-sm text-green-800">{{ pdfFile.name }} ({{ (pdfFile.size / 1024 / 1024).toFixed(2) }} Mo)</span>
+            </div>
           </div>
         </div>
 
@@ -157,7 +214,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import imageCompression from 'browser-image-compression'
-import { uploadProductImage } from '../../services/firebase'
+import { uploadProductImage, uploadEbookPDF } from '../../services/firebase'
 import { useProductStore } from '../../stores/products'
 
 const emit = defineEmits(['close', 'save'])
@@ -182,14 +239,18 @@ const uploading = ref(false)
 const imageError = ref('')
 const imagePreview = ref<string | null>(null)
 let imageFile: File | null = null
+const uploadingPDF = ref(false)
+const pdfError = ref('')
+let pdfFile: File | null = null
 const success = ref(false)
 
 const isFormValid = computed(() => {
   return form.value.name.trim().length >= 3 &&
          form.value.description.trim().length >= 10 &&
-         form.value.price > 0 &&
+         (form.value.price > 0 || (form.value.category === 'ebook' && form.value.price === 0))
          form.value.category &&
-         imageFile !== null
+         imageFile !== null &&
+         (form.value.category !== 'ebook' || pdfFile !== null)
 })
 
 const handleImageUpload = async (event: Event) => {
@@ -228,6 +289,32 @@ const handleImageUpload = async (event: Event) => {
   }
 }
 
+const handlePDFUpload = async (event: Event) => {
+  const target = event.target as HTMLInputElement
+  pdfError.value = ''
+  
+  if (target.files && target.files[0]) {
+    const file = target.files[0]
+    
+    try {
+      if (file.type !== 'application/pdf') {
+        throw new Error('Seuls les fichiers PDF sont acceptés')
+      }
+      
+      if (file.size > 10 * 1024 * 1024) {
+        throw new Error('Fichier PDF trop volumineux (max 10 Mo)')
+      }
+
+      pdfFile = file
+
+    } catch (err: any) {
+      pdfError.value = err.message
+      pdfFile = null
+      target.value = '' // reset input
+    }
+  }
+}
+
 const handleSubmit = async () => {
   if (!isFormValid.value) {
     error.value = 'Veuillez remplir tous les champs obligatoires avec les valeurs minimales requises'
@@ -240,6 +327,7 @@ const handleSubmit = async () => {
 
   try {
     let imageUrl = ''
+    let pdfUrl = ''
 
     if (imageFile) {
       uploading.value = true
@@ -255,12 +343,27 @@ const handleSubmit = async () => {
       uploading.value = false
     }
 
+    // Upload du PDF si c'est un e-book
+    if (form.value.category === 'ebook' && pdfFile) {
+      uploadingPDF.value = true
+
+      pdfUrl = await Promise.race([
+        uploadEbookPDF(pdfFile),
+        new Promise<string>((_, reject) =>
+          setTimeout(() => reject(new Error("Timeout: Upload PDF trop long (30s)")), 30000)
+        )
+      ])
+
+      uploadingPDF.value = false
+    }
+
     const productData = {
       name: form.value.name.trim(),
       description: form.value.description.trim(),
       price: form.value.price,
       category: form.value.category as Category,
       image: imageUrl,
+      pdfUrl: pdfUrl || undefined,
       rating: form.value.rating !== undefined ? form.value.rating : undefined,
       reviews: form.value.reviews !== undefined ? form.value.reviews : undefined,
       inStock: form.value.inStock
@@ -286,6 +389,8 @@ const handleSubmit = async () => {
       imageFile = null
       imagePreview.value = null
       imageError.value = ''
+      pdfFile = null
+      pdfError.value = ''
     } else {
       error.value = "Erreur lors de l'ajout du produit"
     }
@@ -294,6 +399,7 @@ const handleSubmit = async () => {
   } finally {
     loading.value = false
     uploading.value = false
+    uploadingPDF.value = false
   }
 }
 </script>

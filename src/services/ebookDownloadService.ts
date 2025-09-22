@@ -1,0 +1,57 @@
+// src/services/ebookDownloadService.ts
+import emailjs from "@emailjs/browser";
+
+const {
+  VITE_EMAILJS_SERVICE_ID,
+  VITE_EMAILJS_TEMPLATE_ID,
+  VITE_EMAILJS_PUBLIC_KEY,
+} = import.meta.env;
+
+const SERVICE_ID = VITE_EMAILJS_SERVICE_ID;
+const TEMPLATE_ID = VITE_EMAILJS_TEMPLATE_ID;
+const PUBLIC_KEY = VITE_EMAILJS_PUBLIC_KEY;
+
+export const ebookDownloadService = {
+  async sendEbooksByEmail({
+    email,
+    products,
+  }: {
+    email: string;
+    products: { name: string; pdfUrl: string }[];
+  }) {
+    // On génère une liste HTML avec les liens
+   const ebooks_html = products
+      .map(
+        (p) => `
+          <a href="${p.pdfUrl}" 
+            style="display:inline-block;margin:8px 0;padding:10px 16px;
+                    background:#16a34a;color:#fff;text-decoration:none;
+                    border-radius:6px;font-weight:bold;"
+            target="_blank">
+            📥 Télécharger "${p.name}"
+          </a><br/>
+        `
+      )
+      .join("");
+
+    const templateParams = {
+      to_email: email,
+      ebooks_html,  
+    };
+
+
+    try {
+      const result = await emailjs.send(
+        SERVICE_ID,
+        TEMPLATE_ID,
+        templateParams,
+        PUBLIC_KEY
+      );
+      console.log("✅ Email envoyé:", result.text);
+      return { success: true };
+    } catch (error) {
+      console.error("❌ Erreur EmailJS:", error);
+      throw error;
+    }
+  },
+};

@@ -2,6 +2,7 @@
 import type { Product, BlogPost } from '../types'
 import type { Promotion } from '../types'
 import { db, storage } from '../config/firebase'
+
 import { 
   collection,
   doc,
@@ -633,3 +634,143 @@ export const uploadPromotionImage = async (file: File): Promise<string> => {
     allowedTypes: ['image/jpeg', 'image/jpg', 'image/png', 'image/webp']
   })
 }
+
+// Upload PDF pour e-books
+export const uploadEbookPDF = async (file: File): Promise<string> => {
+  try {
+    // Validation du fichier PDF
+    if (!file) {
+      throw new Error('Aucun fichier sélectionné')
+    }
+    
+    if (file.type !== 'application/pdf') {
+      throw new Error('Seuls les fichiers PDF sont acceptés')
+    }
+    
+    if (file.size > 10 * 1024 * 1024) { // 10 MB max
+      throw new Error('Fichier PDF trop volumineux (max 10 Mo)')
+    }
+    
+    const timestamp = Date.now()
+    const randomString = Math.random().toString(36).substring(2, 8)
+    const fileName = `ebook_${timestamp}_${randomString}.pdf`
+    
+    const pdfRef = storageRef(storage, `ebooks/${fileName}`)
+    
+    const metadata = {
+      contentType: 'application/pdf'
+    }
+    
+    await uploadBytes(pdfRef, file, metadata)
+    const url = await getDownloadURL(pdfRef)
+    
+    return url
+  } catch (error: any) {
+    throw new Error(error?.message || 'Erreur lors de l\'upload du PDF')
+  }
+}
+
+// Service pour les téléchargements d'e-books
+export interface EbookDownload {
+  id?: string
+  productId: string
+  productName: string
+  userEmail: string
+  downloadedAt: Timestamp | null
+  ipAddress?: string
+}
+
+export const ebookDownloadService = {
+  /**
+   * Enregistre un téléchargement d'e-book
+   * Empêche les doublons (même email + même produit)
+   */
+  async recordDownload(download: Omit<EbookDownload, "id" | "downloadedAt">): Promise<string | null> {
+    try {
+      const downloadsRef = collection(db, "ebook_downloads")
+
+      // Vérifier si cet email a déjà téléchargé le même produit
+      const q = query(
+        downloadsRef,
+        where("productId", "==", download.productId),
+        where("userEmail", "==", download.userEmail)
+      )
+      const existing = await getDocs(q)
+      if (!existing.empty) {
+        console.warn("Cet utilisateur a déjà téléchargé cet e-book")
+        return null
+      }
+
+      const downloadData = {
+        ...download,
+        downloadedAt: serverTimestamp()
+      }
+
+      const docRef = await addDoc(downloadsRef, downloadData)
+      return docRef.id
+    } catch (error: any) {
+      console.error("Erreur lors de l'enregistrement du téléchargement:", error)
+      return null
+    }
+  },
+
+  /**
+   * Appelle la Cloud Function pour envoyer les e-books par email
+   */
+  async sendEbooksByEmail(payload: { email: string, products: any[] }) {
+    try {
+      const response = await fetch('https://us-central1-merrysfood.cloudfunctions.net/api/sendEbooksByEmail', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
+      })
+      const data = await response.json()
+      if (!response.ok) {
+        throw new Error(data.error || 'Erreur lors de l’envoi des e-books')
+      }
+      return data
+    } catch (err) {
+      console.error("Erreur lors de l'appel à sendEbooksByEmail:", err)
+      throw err
+    }
+  },
+
+  /**
+   * Récupère la liste des téléchargements pour un produit
+   */
+  async getDownloadsByProduct(productId: string): Promise<EbookDownload[]> {
+    try {
+      const downloadsRef = collection(db, "ebook_downloads")
+      const q = query(
+        downloadsRef,
+        where("productId", "==", productId),
+        orderBy("downloadedAt", "desc")
+      )
+      const snapshot = await getDocs(q)
+
+      return snapshot.docs.map(doc => {
+        const data = doc.data() as Omit<EbookDownload, "id">
+        return { id: doc.id, ...data }
+      })
+    } catch (error: any) {
+      console.error("Erreur lors de la récupération des téléchargements:", error)
+      return []
+    }
+  },
+
+  /**
+   * Récupère tous les emails distincts qui ont téléchargé un produit (utile pour une mailing list)
+   */
+  async getDistinctEmailsByProduct(productId: string): Promise<string[]> {
+    try {
+      const downloads = await this.getDownloadsByProduct(productId)
+      return Array.from(new Set(downloads.map(d => d.userEmail)))
+    } catch (error: any) {
+      console.error("Erreur lors de la récupération des emails:", error)
+      return []
+    }
+  }
+}
+
