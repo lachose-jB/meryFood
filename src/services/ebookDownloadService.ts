@@ -1,6 +1,10 @@
 // src/services/ebookDownloadService.ts
 import emailjs from "@emailjs/browser";
 
+// 👉 Ajoute ces imports pour Firestore
+import { db} from '../config/firebase'
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore'
+
 const {
   VITE_EMAILJS_SERVICE,
   VITE_EMAILJS_TEMPLATE,
@@ -20,7 +24,7 @@ export const ebookDownloadService = {
     products: { name: string; pdfUrl: string }[];
   }) {
     // On génère une liste HTML avec les liens
-   const ebooks_html = products
+    const ebooks_html = products
       .map(
         (p) => `
           <a href="${p.pdfUrl}" 
@@ -39,7 +43,6 @@ export const ebookDownloadService = {
       ebooks_html,  
     };
 
-
     try {
       const result = await emailjs.send(
         SERVICE_ID,
@@ -54,4 +57,17 @@ export const ebookDownloadService = {
       throw error;
     }
   },
+
+  // 👉 Ajoute ce service pour enregistrer l'email dans Firestore
+  async registerEmail(email: string) {
+    try {
+      await addDoc(collection(db, 'ebook_emails'), {
+        email,
+        createdAt: serverTimestamp(),
+      });
+      console.log('✅ Email enregistré dans Firestore');
+    } catch (e) {
+      console.error('❌ Erreur enregistrement email Firestore:', e);
+    }
+  }
 };
