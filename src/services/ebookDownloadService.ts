@@ -11,11 +11,6 @@ const SERVICE_ID = VITE_EMAILJS_SERVICE;
 const TEMPLATE_ID = VITE_EMAILJS_TEMPLATE;
 const PUBLIC_KEY = VITE_EMAILJS_PUBLIC;
 
-console.log("Env mode:", import.meta.env.MODE);
-console.log("EmailJS service ID:", import.meta.env.VITE_EMAILJS_SERVICE);
-console.log("EmailJS template ID:", import.meta.env.VITE_EMAILJS_TEMPLATE);
-console.log("EmailJS public key:", import.meta.env.VITE_EMAILJS_PUBLIC);
-
 export const ebookDownloadService = {
   async sendEbooksByEmail({
     email,
